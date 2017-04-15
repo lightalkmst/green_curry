@@ -10,8 +10,6 @@ The contents of this package are organized into submodules:
 
 [L: lists (arrays)](https://github.com/lightalkmst/green_curry#l-1-list-and-2-lists-functions)
 
-note: lists are assumed to be dense, meaning all data is contiguous.
-
 [D: dictionaries (objects)](https://github.com/lightalkmst/green_curry#d-dictionary-functions)
 
 [S: strings](https://github.com/lightalkmst/green_curry#s-string-functions)
@@ -481,6 +479,7 @@ var n = {
 n.f () // 3
 ```
 ## L (1 list and 2 lists functions)
+note: lists are assumed to be dense, meaning all data is contiguous.
 note: all respective orders are preserved, except in obvious cases
 ### 1 list functions
 #### L.cons : 'a -> 'a list -> 'a list
