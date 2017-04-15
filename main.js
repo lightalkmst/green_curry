@@ -206,7 +206,7 @@ var L = {
   //         //
   /////////////
 
-	// all functions assume dense 0-indexed arrays
+	// all functions assume dense 0-indexed lists
 
   // 'a -> 'a list -> 'a list
   cons: h => l => [h, ...l],
@@ -295,7 +295,7 @@ var L = {
   sort: f => l => l.concat ().sort ((x, y) => f (x) (y)),
 
   // ('a -> bool) -> 'a list -> ('a list * 'a list)
-  partition: f => l => [L.filter (f) (l), L.filter (h => ! f (h)) (l)],
+  partition: f => l => [L.filter (f) (l), L.filter (F.neg (f)) (l)],
 
   // 'a list -> 'a list
   uniq: l => {
@@ -378,7 +378,7 @@ var D = {
 	is_empty: d => d.keys ().length == 0,
 
 	// 'a -> 'a, 'b dictionary -> 'b
-	get: x => d => d [x],
+	get: x => d => d[x],
 
   // ('a * 'b) list -> 'a, 'b dictionary
   create: l => {
@@ -405,16 +405,6 @@ var D = {
   // ('a -> 'b -> 'a) -> 'a -> ('c, 'b) list -> 'a
 	fold: f => a => d => (L.iter (h => a = f (a) (h)) (D.vals (d)), a),
 
-  // ('a -> 'a -> 'a) -> 'b, 'a dictionary -> 'a
-  reduce: f => d => L.fold (f) (L.head (D.keys (d))) (L.tail (D.keys (d))),
-
-  // ('a -> 'b -> 'a) -> 'a -> 'c, 'b dictionary -> 'a list
-  scan: f => a => d => {
-  	var ans = [a]
-    L.iteri (i => h => ans[i + 1] = a = f (a) (h)) (D.vals (d))
-    return ans
-  },
-
   // ('a -> 'b -> 'c) -> 'a, 'b dictionary -> 'a, 'c dictionary
   mapk: f => d => {
   	var ans = {}
@@ -423,11 +413,7 @@ var D = {
   },
 
   // ('a -> 'b) -> 'c, 'a dictionary -> 'c, 'b dictionary
-	map: f => d => {
-  	var ans = {}
-  	D.iterk (k => v => ans[k] = f (v)) (d)
-    return ans
-  },
+	map: f => d => D.mapk (F.const (f)),
 
   // ('a -> bool) -> 'b, 'a dictionary -> 'a
   find: f => d => F.ex_if (! L.contains (f) (D.vals (d))) || L.find (f) (D.vals (d)),
@@ -440,11 +426,7 @@ var D = {
   },
 
 	// ('a -> bool) -> 'a list -> 'a list
-	filter: f => d => {
-  	var ans = {}
-  	D.iterk (k => v => f (v) && (ans[k] = d[v])) (d)
-    return ans
-	},
+	filter: f => d => D.filterk (F.const (f)),
 
   // ('a -> bool) -> 'b, 'a dictionary -> bool
   for_all: f => d => L.forall (f) (D.vals (d)),
@@ -459,7 +441,7 @@ var D = {
   length: d => L.length (D.keys (d)),
 
   // ('a -> bool) -> 'b, 'a dictionary -> (('b, 'a) dictionary * ('b, 'a) dictionary)
-  partition: f => d => [D.filter (f) (d), D.filter (h => ! f (h)) (d)],
+  partition: f => d => [D.filter (f) (d), D.filter (F.neg (f)) (d)],
 
 	// 'a, 'b dictionary -> 'a, 'b dictionary -> 'a, 'b dictionary
 	extend: d1 => d2 => {
@@ -474,7 +456,7 @@ var D = {
 		var ans = {}
 		for (k in d) {
 			if (! L.contains (k)) {
-				ans [k] = d [k]
+				ans[k] = d[k]
 			}
 		}
 		return ans
@@ -491,8 +473,6 @@ var S = {
 	// int -> int -> string -> string
 	substr: s => x => y => s.substring (x, y > -1 ? y : y + 1 + S.length (s)),
 
-	concat: (...s) => L.fold (F['+']) ('') (s),
-
 	// string -> string -> int
 	index: s1 => s2 => s1.indexOf (s2),
 
@@ -502,12 +482,11 @@ var S = {
 	// string -> string -> int
 	compare: s1 => s2 => s1.localeCompare (s2),
 
-	// string -> regex -> string array
+	// string -> regex -> string list
 	match: r => s => s.match (r),
 
 	// string -> regex -> string -> string
-	// regex -> string -> string -> string
-	replace: r => s1 => s2 => s2.replace (r, s1),
+	replace: s1 => r => s2 => s1.replace (r, s2),
 
 	// string -> string -> int
 	rindex: s1 => s2 => s1.lastIndexOf (s2),
@@ -515,7 +494,7 @@ var S = {
 	// string -> regex -> int
 	search: s => r => s.search (r),
 
-	// string -> string/regex -> string array
+	// string -> regex -> string list
 	split: s => r => s.split (r),
 
 	// string -> string
@@ -526,9 +505,6 @@ var S = {
 
 	// string -> string
 	trim: s => s.trim (),
-
-	// string -> string -> string
-	wrap: s1 => s2 => s3 => s1 + s3 + s2,
 }
 
 module.exports = {
