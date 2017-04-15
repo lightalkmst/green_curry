@@ -74,6 +74,7 @@ note: works both in-server and in-browser
     F.log ('Hint: 3?') // prints 'Hint: 3?'
 
 ## F (general functions and constants)
+note: regard the operators as prefix notation
 #### F.e : obj
 Constant exception object thrown by this library
 
