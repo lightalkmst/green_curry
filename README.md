@@ -794,7 +794,7 @@ D.iter (F.log) ({
 #### D.iterk : ('a -> 'b -> unit) -> 'a, 'b dictionary -> unit
 Same as D.iter, except additionally passing the key
 ```javascript
-D.iterk (k => v => F.log (`${k}: ${v}') ({
+D.iterk (k => v => F.log (`${k}: ${v}`) ({
     Hint: '3?',
     Not_a_Hint: 'You\'re already dead',
 }) // prints 'Hint: 3?' then 'Not_a_Hint: You\'re already dead'
@@ -820,7 +820,7 @@ D.map (F['+'] (3)) ({
 #### D.mapk : ('a -> 'b -> 'c) -> 'a, 'b dictionary -> 'a, 'c dictionary
 Same as D.map, except additionally passing the key
 ```javascript
-D.map (k => v => `${k}: ${v}') ({
+D.mapk (k => v => `${k}: ${v}') ({
     a: 1,
     b: 2,
     c: 3,
