@@ -100,6 +100,12 @@ var F = {
 	// ('a -> bool) -> ('a -> bool)
 	neg: f => (...x) => ! f (...x),
 
+	// ('a -> bool) -> ('a -> bool) -> ('a -> bool)
+	union: f => g => x => f (x) || g (x),
+
+	// ('a -> bool) -> ('a -> bool) -> ('a -> bool)
+	inter: f => g => x => f (x) && g (x),
+
 	// (unit -> 'a) -> 'a
   try: p => fs => {
     var f = fs.shift ()
@@ -212,10 +218,10 @@ var L = {
   cons: h => l => [h, ...l],
 
   // 'a list -> 'a
-	head: l => F.ex_if (L.isEmpty (l)) || l[0],
+	head: l => F.ex_if (L.is_empty (l)) || l[0],
 
   // 'a list -> 'a list
-	tail: l => F.ex_if (L.isEmpty (l)) || l.slice (1),
+	tail: l => F.ex_if (L.is_empty (l)) || l.slice (1),
 
   // 'a list -> int
   length: l => l.length,
@@ -510,7 +516,7 @@ var S = {
 module.exports = {
 	F: F,
 	L: L,
-	M: M,
+	D: D,
 	S: S,
 	globalize: function () {
 		for (var k in this) {
