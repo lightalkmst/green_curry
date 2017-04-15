@@ -892,7 +892,7 @@ Returns the substring from (arg1) to (arg2) of (arg3) with some slice logic
 #### S.index : string -> string -> int
 Returns the first index at which (arg2) appears in (arg1)
 
-    S.index ('Hint: 3?') ('3') // 6
+    S.index ('Not_a_Hint: You're already dead') ('a') // 4
 
 #### S.contains : string -> string -> bool
 Returns if (arg2) appears in (arg1)
@@ -917,3 +917,33 @@ Else return null
 Returns (arg1) with matches of (arg2) replaced by (arg3)
 
     S.replace ('Hint: 3?') (/$/) ('
+
+#### S.rindex : string -> string -> int
+Same as S.index, except with the last occurance
+
+    S.rindex ('Not_a_Hint: You're already dead') ('3') // 29
+
+#### S.search : string -> regex -> int
+Returns the first index that (arg2) matches in (arg1)
+
+    S.search ('Not_a_Hint: You're already dead') (/^/) // 0
+
+#### S.split : string -> regex -> string list
+Returns a list of the substrings of (arg1) split by (arg2)
+
+    S.split ('Hint: 3?') (/:/) // ['Hint', ' 3?']
+
+#### S.lower : string -> string
+Returns (arg1) with all characters lowercase
+
+    S.lower ('Hint: 3?') // 'hint: 3?'
+
+#### S.upper : string -> string
+Returns (arg1) with all characters uppercase
+
+    S.upper ('Hint: 3?') // 'HINT: 3?'
+
+#### S.trim : string -> string
+Returns (arg1) without surrounding whitespace
+
+    S.trim (' Hint: 3? ') // 'Hint: 3?'
