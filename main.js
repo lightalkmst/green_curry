@@ -187,7 +187,7 @@ var F = {
 	// int -> ('a -> 'b') -> ('a -> unit/'b)
 	before: n => f => (...args) => n > 1 ? (n--, f (...args)) : undefined,
 
-	// 'a, 'b map -> 'a, 'b map
+	// 'a, 'b dictionary -> 'a, 'b dictionary
 	bind: o => {
 		var ans = {}
 		for (var k in o) {
@@ -292,7 +292,7 @@ var L = {
   contains: x => l => l.includes (x),
 
   // ('a -> 'a -> int) -> 'a list -> 'a list
-  sort: f => l => l.sort ((x, y) => f (x) (y)),
+  sort: f => l => l.concat ().sort ((x, y) => f (x) (y)),
 
   // ('a -> bool) -> 'a list -> ('a list * 'a list)
   partition: f => l => [L.filter (f) (l), L.filter (h => ! f (h)) (l)],
@@ -324,7 +324,7 @@ var L = {
   append: l1 => l2 => [...l1, ...l2],
 
   // 'a list -> 'b list -> bool
-  unequal_length: l1 => l2 => l1.length == l2.length,
+  uneq_length: l1 => l2 => l1.length == l2.length,
 
   // (int -> 'a -> 'b -> unit) -> 'a list -> 'b list -> unit
   iteri2: f => l1 => l2 => {
@@ -354,7 +354,7 @@ var L = {
   map2: f => L.mapi2 (F.const (f)),
 
   // ('a -> 'b -> bool) -> 'a list -> 'b list -> bool
-  forall2: f => L.fold2 (a => h1 => h2 => a && f (h1) (h2)) (true),
+  for_all2: f => L.fold2 (a => h1 => h2 => a && f (h1) (h2)) (true),
 
   // ('a -> 'b -> bool) -> 'a list -> 'b list -> bool
   exists2: f => L.fold2 (a => h1 => h2 => a || f (h1) (h2)) (false),
@@ -367,114 +367,114 @@ var L = {
   },
 }
 
-var M = {
-	///////////
-  //       //
-  //  Map  //
-  //       //
-  ///////////
+var D = {
+	//////////////////
+  //              //
+  //  Dictionary  //
+  //              //
+  //////////////////
 
-  // 'a, 'b map -> bool
-	is_empty: m => m.keys ().length == 0,
+  // 'a, 'b dictionary -> bool
+	is_empty: d => d.keys ().length == 0,
 
-	// 'a -> ('a, 'b') map -> 'b
-	get: x => m => m [x],
+	// 'a -> 'a, 'b dictionary -> 'b
+	get: x => d => d [x],
 
-  // ('a * 'b) list -> 'a, 'b map
+  // ('a * 'b) list -> 'a, 'b dictionary
   create: l => {
   	var ans = {}
     L.iter (h => ans[h[0]] = h[1])
     return ans
   },
 
-  // 'a, 'b map -> 'a list
-  keys: m => Object.keys (m),
+  // 'a, 'b dictionary -> 'a list
+  keys: d => Object.keys (d),
 
-  // 'a, 'b map -> 'b list
-  vals: m => L.map (F.swap (M.get) (m)) (M.keys (m)),
+  // 'a, 'b dictionary -> 'b list
+  vals: d => L.map (F.swap (D.get) (d)) (D.keys (d)),
 
-  // 'a, 'b map -> ('a * 'b) list
-  pairs: m => L.map (h => [h, m[h]]) (M.keys (m)),
+  // 'a, 'b dictionary -> ('a * 'b) list
+  pairs: d => L.map (h => [h, d[h]]) (D.keys (d)),
 
-  // ('a -> 'b -> unit) -> 'a, 'b map -> unit
-  iterk: f => m => L.iter (h => f (h) (m[h])) (M.keys (m)),
+  // ('a -> 'b -> unit) -> 'a, 'b dictionary -> unit
+  iterk: f => d => L.iter (h => f (h) (d[h])) (D.keys (d)),
 
-  // ('a -> unit) -> ('b, 'a) map -> unit
-	iter: f => M.iterk (F.const (f)),
+  // ('a -> unit) -> 'b, 'a dictionary -> unit
+	iter: f => D.iterk (F.const (f)),
 
   // ('a -> 'b -> 'a) -> 'a -> ('c, 'b) list -> 'a
-	fold: f => a => m => (L.iter (h => a = f (a) (h)) (M.vals (m)), a),
+	fold: f => a => d => (L.iter (h => a = f (a) (h)) (D.vals (d)), a),
 
-  // ('a -> 'a -> 'a) -> ('b, 'a) map -> 'a
-  reduce: f => m => L.fold (f) (L.head (M.keys (m))) (L.tail (M.keys (m))),
+  // ('a -> 'a -> 'a) -> 'b, 'a dictionary -> 'a
+  reduce: f => d => L.fold (f) (L.head (D.keys (d))) (L.tail (D.keys (d))),
 
-  // ('a -> 'b -> 'a) -> 'a -> ('c, 'b) map -> 'a list
-  scan: f => a => m => {
+  // ('a -> 'b -> 'a) -> 'a -> 'c, 'b dictionary -> 'a list
+  scan: f => a => d => {
   	var ans = [a]
-    L.iteri (i => h => ans[i + 1] = a = f (a) (h)) (M.vals (m))
+    L.iteri (i => h => ans[i + 1] = a = f (a) (h)) (D.vals (d))
     return ans
   },
 
-  // ('a -> 'b -> 'c) -> 'a, 'b map -> ('a, 'c) map
-  mapk: f => m => {
+  // ('a -> 'b -> 'c) -> 'a, 'b dictionary -> 'a, 'c dictionary
+  mapk: f => d => {
   	var ans = {}
-    M.iterk (k => v => ans[k] = f (k) (v)) (m)
+    D.iterk (k => v => ans[k] = f (k) (v)) (d)
     return ans
   },
 
-  // ('a -> 'b) -> ('c, 'a) map -> ('c, 'b) map
-	map: f => m => {
+  // ('a -> 'b) -> 'c, 'a dictionary -> 'c, 'b dictionary
+	map: f => d => {
   	var ans = {}
-  	M.iterk (k => v => ans[k] = f (v)) (m)
+  	D.iterk (k => v => ans[k] = f (v)) (d)
     return ans
   },
 
-  // ('a -> bool) -> ('b, 'a) map -> 'a
-  find: f => m => F.ex_if (! L.contains (f) (M.vals (m))) || L.find (f) (M.vals (m)),
+  // ('a -> bool) -> 'b, 'a dictionary -> 'a
+  find: f => d => F.ex_if (! L.contains (f) (D.vals (d))) || L.find (f) (D.vals (d)),
 
   // ('a -> 'b -> bool) -> 'a list -> 'a list
-  filterk: f => m => {
+  filterk: f => d => {
   	var ans = {}
-  	M.iterk (k => v => f (k) (v) && (ans[k] = m[v])) (m)
+  	D.iterk (k => v => f (k) (v) && (ans[k] = d[v])) (d)
     return ans
   },
 
 	// ('a -> bool) -> 'a list -> 'a list
-	filter: f => m => {
+	filter: f => d => {
   	var ans = {}
-  	M.iterk (k => v => f (v) && (ans[k] = m[v])) (m)
+  	D.iterk (k => v => f (v) && (ans[k] = d[v])) (d)
     return ans
 	},
 
-  // ('a -> bool) -> ('b, 'a) map -> bool
-  for_all: f => m => L.forall (f) (M.vals (m)),
+  // ('a -> bool) -> 'b, 'a dictionary -> bool
+  for_all: f => d => L.forall (f) (D.vals (d)),
 
-  // ('a -> bool) -> ('b, 'a) map -> bool
-  exists: f => m => L.exists (f) (M.vals (m)),
+  // ('a -> bool) -> 'b, 'a dictionary -> bool
+  exists: f => d => L.exists (f) (D.vals (d)),
 
-  // 'a -> ('b, 'a) map -> bool
-  contains: x => m => L.contains (x) (M.vals (m)),
+  // 'a -> 'b, 'a dictionary -> bool
+  contains: x => d => L.contains (x) (D.vals (d)),
 
-  // 'a, 'b map -> int
-  length: m => L.length (M.keys (m)),
+  // 'a, 'b dictionary -> int
+  length: d => L.length (D.keys (d)),
 
-  // ('a -> bool) -> ('b, 'a) map -> (('b, 'a) map * ('b, 'a) map)
-  partition: f => m => [M.filter (f) (m), M.filter (h => ! f (h)) (m)],
+  // ('a -> bool) -> 'b, 'a dictionary -> (('b, 'a) dictionary * ('b, 'a) dictionary)
+  partition: f => d => [D.filter (f) (d), D.filter (h => ! f (h)) (d)],
 
-	// 'a, 'b map -> 'a, 'b map -> 'a, 'b map
-	extend: m1 => m2 => {
+	// 'a, 'b dictionary -> 'a, 'b dictionary -> 'a, 'b dictionary
+	extend: d1 => d2 => {
 		var ans = {}
-		M.iterk (k => v => ans[k] = v) (m1)
-		M.iterk (k => v => ans[k] = v) (m2)
+		D.iterk (k => v => ans[k] = v) (d1)
+		D.iterk (k => v => ans[k] = v) (d2)
 		return ans
 	},
 
-	// 'a, 'b map -> 'a list -> 'a, 'b map
-	delete: m => l => {
+	// 'a, 'b dictionary -> 'a list -> 'a, 'b dictionary
+	delete: d => l => {
 		var ans = {}
-		for (k in m) {
+		for (k in d) {
 			if (! L.contains (k)) {
-				ans [k] = m [k]
+				ans [k] = d [k]
 			}
 		}
 		return ans
