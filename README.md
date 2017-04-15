@@ -21,41 +21,41 @@ This library is to provide support for functional programming. Though some other
 I believe that what's held JavaScript back from being adopted as a functional programming language is its lack of a purely functional library. Functional programming's rewards are reaped best when currying is available, enabling point-free form to increase the abstractness and modularity of the code. One of the strengths of functional programming is that a vast majority of boilerplate is already replaced by higher-order library functions. As these functions are all very general, abstract ideas fueled by inversion of control, these could possibly never be outdated.
 
 Here is an example:
+```javascript
+var fs = require ('fs')
+var green_curry = require ('green_curry')
+green_curry.globalize ()
 
-    var fs = require ('fs')
-    var green_curry = require ('green_curry')
-    green_curry.globalize ()
-
-    // string -> 'a
-    // given a path, concatenates all of the files and evals the result
-    var eval_dir = h => F.p (h) (
-        fs.readdirSync                                  // get the list of file names in the directory
-        >> L.map (F['+'] (h))                           // append the path before each file name
-        >> L.map (h => fs.readFileSync (h, 'utf8'))     // transform each file path to its file contents
-        >> L.fold (a => h => `${a};${h}`) ('')          // concatenate all of the files, delimited by ';'
-        >> F.eval                                       // evaluate the concatenated files
-    )
-
+// string -> 'a
+// given a path, concatenates all of the files and evals the result
+var eval_dir = h => F.p (h) (
+    fs.readdirSync                                  // get the list of file names in the directory
+    >> L.map (F['+'] (h))                           // append the path before each file name
+    >> L.map (h => fs.readFileSync (h, 'utf8'))     // transform each file path to its file contents
+    >> L.fold (a => h => `${a};${h}`) ('')          // concatenate all of the files, delimited by ';'
+    >> F.eval                                       // evaluate the concatenated files
+)
+```
 Here is another example that may well change the way you think:
+```javascript
+var green_curry = require ('green_curry')
+green_curry.globalize ()
 
-    var green_curry = require ('green_curry')
-    green_curry.globalize ()
-
-    var arr = L.range (1) (50)
-    // inefficient, I know
-    var is_prime = x => x > 2 && L.for_all (h => x % h != 0) (L.range (2) (x - 1))
-    var pred = L.reduce (F.inter) ([
-        // functions are data too! these all have the type (int -> bool)
-        F['>'] (35),               // is less 35
-        F['!='] (23),              // is not 23
-        F['<'] (2),                // is greater than 2
-        is_prime,                  // is prime
-        x => x % 7 != 1,           // is not 1 more than a multiple of 7
-        x => `${x}`[0] != '1',     // does not have a 1 in the first digit
-        x => 1085 % x != 0,        // is not a clean divisor of 1085
-    ])
-    L.filter (pred) (arr) // [3]
-
+var arr = L.range (1) (50)
+// inefficient, I know
+var is_prime = x => x > 2 && L.for_all (h => x % h != 0) (L.range (2) (x - 1))
+var pred = L.reduce (F.inter) ([
+    // functions are data too! these all have the type (int -> bool)
+    F['>'] (35),               // is less 35
+    F['!='] (23),              // is not 23
+    F['<'] (2),                // is greater than 2
+    is_prime,                  // is prime
+    x => x % 7 != 1,           // is not 1 more than a multiple of 7
+    x => `${x}`[0] != '1',     // does not have a 1 in the first digit
+    x => 1085 % x != 0,        // is not a clean divisor of 1085
+])
+L.filter (pred) (arr) // [3]
+```
 An understanding of the typed lambda calculus is required for effective use of this library as all functions provided by this library are curried (all functions are free of self-references, allowing their safe use as first-class functions).
 
 An understanding of the JavaScript type system is recommended for greater use of this library (my type signatures are not strict; following/enforcing a type system by using the appropriate functions keeps code clear, but careful use of type coercion has its rewards)
@@ -68,12 +68,12 @@ Pulls the included submodules into global scope to obviate the need for fully-qu
 All examples on this page will assume this has already been called
 
 note: works both in-server and in-browser
-
-    var green_curry = require ('green_curry')
-    green_curry.F.log ('Hint: 3?') // prints 'Hint: 3?'
-    green_curry.globalize () // raises green_curry library to global scope
-    F.log ('Hint: 3?') // prints 'Hint: 3?'
-
+```javascript
+var green_curry = require ('green_curry')
+green_curry.F.log ('Hint: 3?') // prints 'Hint: 3?'
+green_curry.globalize () // raises green_curry library to global scope
+F.log ('Hint: 3?') // prints 'Hint: 3?'
+```
 ## F (general functions and constants)
 note: regard the operators as prefix notation
 #### F.e : obj
@@ -81,192 +81,192 @@ Constant exception object thrown by this library
 
 #### F.id : 'a -> 'a
 The identity function
-
-    F.id ('Hint: 3?') // 'Hint: 3?'
-
+```javascript
+F.id ('Hint: 3?') // 'Hint: 3?'
+```
 #### F.const : 'a -> unit -> 'a
 Generates a constant function
-
-    var f = F.const ('Hint: 3?')
-    f () // 'Hint: 3?'
-    var f = F.const ('9')
-    f () // '9'
-
+```javascript
+var f = F.const ('Hint: 3?')
+f () // 'Hint: 3?'
+var f = F.const ('9')
+f () // '9'
+```
 #### F.ignore : 'a -> unit
 Does nothing
-
-    F.ignore ('Hint: 3?') // does nothing
-
+```javascript
+F.ignore ('Hint: 3?') // does nothing
+```
 #### F.exec : (unit -> 'a) -> 'a
 Executes the given function
-
-    F.exec (() => 'Hint: 3?') // 'Hint: 3?'
-
+```javascript
+F.exec (() => 'Hint: 3?') // 'Hint: 3?'
+```
 #### F.ex_if : bool -> unit
 If passed true
 
 Then throws the exception F.e
-
-    F.ex_if (true) // throws exception
-    F.ex_if (false) // does nothing
-
+```javascript
+F.ex_if (true) // throws exception
+F.ex_if (false) // does nothing
+```
 #### F.log : 'a -> unit
 An alias for console.log.bind (console)
 
 Aliasing and calling console.log by itself without binding will throw an exception
-
-    var f = console.log
-    f ('Hint: 3?') // throws null pointer exception
-    var f = F.log
-    f ('Hint: 3?') // prints 'Hint: 3?'
-
+```javascript
+var f = console.log
+f ('Hint: 3?') // throws null pointer exception
+var f = F.log
+f ('Hint: 3?') // prints 'Hint: 3?'
+```
 #### F.eval : string -> 'a
 A wrapper for eval that will always operate within calling scope
 
 An unaliased call to eval will operate within the calling scope
 
 An aliased call to eval will operate at the global scope
-
-    var a = 'Hint: 3?'
-    eval ('a') // 'Hint: 3?'
-    var f = eval
-    f ('a') // undefined
-    var f = F.eval
-    f ('a') // 'Hint: 3?'
-
+```javascript
+var a = 'Hint: 3?'
+eval ('a') // 'Hint: 3?'
+var f = eval
+f ('a') // undefined
+var f = F.eval
+f ('a') // 'Hint: 3?'
+```
 #### F.= : 'a -> 'a -> bool
 #### F.== : 'a -> 'a -> bool
 Compares the arguments with soft equality
-
-    F['=='] ('Hint: 3?') ('Hint: 3?') // true
-    F['=='] ('Hint: 3?') ('9') // false
-
+```javascript
+F['=='] ('Hint: 3?') ('Hint: 3?') // true
+F['=='] ('Hint: 3?') ('9') // false
+```
 #### F.=== : 'a -> 'a -> bool
 Compares the arguments with hard equality
-
-    F['==='] ('Hint: 3?') ('Hint: 3?') // true
-    F['==='] ('Hint: 3?') ('9') // false
-
+```javascript
+F['==='] ('Hint: 3?') ('Hint: 3?') // true
+F['==='] ('Hint: 3?') ('9') // false
+```
 #### F.!= : 'a -> 'a -> bool
 #### F.<> : 'a -> 'a -> bool
 Compares the arguments with soft inequality
-
-    F['!='] ('Hint: 3?') ('Hint: 3?') // false
-    F['!='] ('Hint: 3?') ('9') // true
-
+```javascript
+F['!='] ('Hint: 3?') ('Hint: 3?') // false
+F['!='] ('Hint: 3?') ('9') // true
+```
 #### F.!== : 'a -> 'a -> bool
 Compares the arguments with hard inequality
-
-    F['!=='] ('Hint: 3?') ('Hint: 3?') // false
-    F['!=='] ('Hint: 3?') ('9') // true
-
+```javascript
+F['!=='] ('Hint: 3?') ('Hint: 3?') // false
+F['!=='] ('Hint: 3?') ('9') // true
+```
 #### F.> : int -> int -> bool
 Returns if (arg1) is greater than (arg2)
-
-    F['>'] (3) (3) // false
-    F['>'] (3) (9) // false
-    F['>'] (9) (3) // true
-
+```javascript
+F['>'] (3) (3) // false
+F['>'] (3) (9) // false
+F['>'] (9) (3) // true
+```
 #### F.>= : int -> int -> bool
 Returns if (arg1) is greater than or equal to (arg2)
-
-    F['>='] (3) (3) // true
-    F['>='] (3) (9) // false
-    F['>='] (9) (3) // true
-
+```javascript
+F['>='] (3) (3) // true
+F['>='] (3) (9) // false
+F['>='] (9) (3) // true
+```
 #### F.< : int -> int -> bool
 Returns if (arg1) is lesser than (arg2)
-
-    F['<'] (3) (3) // false
-    F['<'] (3) (9) // true
-    F['<'] (9) (3) // false
-
+```javascript
+F['<'] (3) (3) // false
+F['<'] (3) (9) // true
+F['<'] (9) (3) // false
+```
 #### F.<= : int -> int -> bool
 Returns if (arg1) is lesser than or equal to (arg2)
-
-    F['<='] (3) (3) // true
-    F['<='] (3) (9) // true
-    F['<='] (9) (3) // false
-
+```javascript
+F['<='] (3) (3) // true
+F['<='] (3) (9) // true
+F['<='] (9) (3) // false
+```
 #### F.! : bool -> bool
 Negates the argument
-
-    F['!'] (true) // false
-
+```javascript
+F['!'] (true) // false
+```
 #### F.~ : int -> int
 2's complements the argument
-
-    F['~'] (3) // -4
-
+```javascript
+F['~'] (3) // -4
+```
 #### F.+ : int -> int
 Adds the arguments
-
-    F['+'] (3) (3) // 6
-
+```javascript
+F['+'] (3) (3) // 6
+```
 #### F.- : int -> int
 Subtracts the arguments
-
-    F['-'] (3) (3) // 0
-    F['-'] (3) (0) // 3
-
+```javascript
+F['-'] (3) (3) // 0
+F['-'] (3) (0) // 3
+```
 #### F.* : int -> int
 Multiplies the arguments
-
-    F['*'] (3) (3) // 9
-
+```javascript
+F['*'] (3) (3) // 9
+```
 #### F./ : int -> int
 Divides the arguments
-
-    F['/'] (3) (3) // 1
-    F['/'] (3) (1) // 3
-
+```javascript
+F['/'] (3) (3) // 1
+F['/'] (3) (1) // 3
+```
 #### F.% : int -> int
 Modulo divides the arguments
-
-    F['%'] (3) (3) // 0
-    F['%'] (3) (1) // 0
-
+```javascript
+F['%'] (3) (3) // 0
+F['%'] (3) (1) // 0
+```
 #### F.| : int -> int
 Bitwise Or the arguments
-
-    F['|'] (3) (3) // 3
-
+```javascript
+F['|'] (3) (3) // 3
+```
 #### F.|| : bool -> bool
 Logical Or the arguments
 
 (note: the arguments are evaluated eagerly so this does not short-circuit)
-
-    F['||'] (true) (true) // true
-
+```javascript
+F['||'] (true) (true) // true
+```
 #### F.& : int -> int
 Bitwise And the arguments
-
-    F['&'] (3) (3) // 3
-
+```javascript
+F['&'] (3) (3) // 3
+```
 #### F.&& : bool -> bool
 Logical And the arguments
 
 (note: the arguments are evaluated eagerly so this does not short-circuit)
-
-    F['&&'] (true) (true) // true
-
+```javascript
+F['&&'] (true) (true) // true
+```
 #### F.^ : int -> int
 Bitwise Xor the arguments
-
-    F['^'] (3) (3) // 0
-
+```javascript
+F['^'] (3) (3) // 0
+```
 #### F.>>> : int -> int
 Sign-propagating right shifts the arguments
-
-    F['>>>'] (9) (2) // 2
-    F['>>>'] (-9) (2) // -3
-
+```javascript
+F['>>>'] (9) (2) // 2
+F['>>>'] (-9) (2) // -3
+```
 #### F.>>>> : int -> int
 Zero-fill right shifts the arguments
-
-    F['>>>>'] (9) (2) // 2
-    F['>>>>'] (-9) (2) // -1073741821
-
+```javascript
+F['>>>>'] (9) (2) // 2
+F['>>>>'] (-9) (2) // -1073741821
+```
 #### F.<<< : int -> int
 Left shifts the arguments
 
