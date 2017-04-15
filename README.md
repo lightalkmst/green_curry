@@ -17,24 +17,38 @@ Here is an example:
     // string -> 'a
     // given a path, concatenates all of the files and evals the result
     var eval_dir = h => F.p (h) (
-        // get the list of file names in the directory
-        fs.readdirSync
-        // append the path before each file name
-        >> L.map (F['+'] (h))
-        // transform each file path to its file contents
-        >> L.map (h => fs.readFileSync (h, 'utf8'))
-        // concatenate all of the files, delimited by ';'
-        >> L.fold (a => h => `${a};${h}`) ('')
-        // evaluate the concatenated files
-        >> F.eval
+        fs.readdirSync // get the list of file names in the directory
+        >> L.map (F['+'] (h)) // append the path before each file name
+        >> L.map (h => fs.readFileSync (h, 'utf8')) // transform each file path to its file contents
+        >> L.fold (a => h => `${a};${h}`) ('') // concatenate all of the files, delimited by ';'
+        >> F.eval // evaluate the concatenated files
     )
+
+Here is another example that may well change the way you think:
+
+    var green_curry = require ('green_curry')
+    green_curry.globalize ()
+
+    var arr = L.range (1) (50)
+    // inefficient, I know
+    var is_prime = x => x > 2 && L.for_all (h => x % h != 0) (L.range (2) (x - 1))
+    // functions are data too! these all have the type (int -> bool)
+    var pred = L.reduce (F.inter) ([
+        F['>'] (35), // is less 35
+        F['!='] (23), // is not 23
+        F['<'] (2), // is greater than 2
+        is_prime, // is prime
+        x => x % 7 != 1, // is not 1 more than a multiple of 7
+        x => `${x}`[0] != '1', // does not have a 1 in the first digit
+        x => 1085 % x != 0, // is not a clean divisor of 1085
+    ])
+    L.filter (pred) (arr) // [3]
 
 An understanding of the typed lambda calculus is required for effective use of this library as all functions provided by this library are curried (all functions are free of self-references, allowing their safe use as first-class functions).
 
 An understanding of the JavaScript type system is recommended for greater use of this library (my type signatures are not strict; following/enforcing a type system by using the appropriate functions keeps code clear, but careful use of type coercion has its rewards)
 
 An understanding of closures and mutability is recommended for greater use of this library (all functions are pure, except F.c and F.p)
-
 
 The contents of this package are organized into submodules.
 
@@ -48,8 +62,11 @@ D: dictionaries (objects)
 S: strings
 
 ## globalize
-This method can be called to pull the included submodules into global scope to obviate the need for fully-qualifying each resource
+Pulls the included submodules into global scope to obviate the need for fully-qualifying each resource
+
 All examples on this page will assume this has already been called
+
+note: works both in-server and in-browser
 
     var green_curry = require ('green_curry')
     green_curry.F.log ('Hint: 3?') // prints 'Hint: 3?'
@@ -317,6 +334,24 @@ Negates the predicate
 
     var f = F.neg (F['='] ('Hint: 3?'))
     f ('Hint: 3?') // false
+
+#### F.union : ('a -> bool) -> ('a -> bool) -> ('a -> bool)
+Returns a predicate that is a union of the predicates
+
+    var f = F.union (x => x % 2 == 0) (x => x % 5 == 0)
+    f (3) // false
+    f (4) // true
+    f (5) // true
+    f (10) // true
+
+#### F.inter : ('a -> bool) -> ('a -> bool) -> ('a -> bool)
+Returns a predicate that is an intersection of the predicates
+
+    var f = F.inter (x => x % 2 == 0) (x => x % 5 == 0)
+    f (3) // false
+    f (4) // false
+    f (5) // false
+    f (10) // true
 
 #### F.try : bool -> (unit -> 'a) list -> 'a
 Invokes the first function in (arg2)
