@@ -4,6 +4,18 @@
 
 (please disregard the culture references in the examples)
 
+The contents of this package are organized into submodules:
+
+[F: general functions and constants](https://github.com/lightalkmst/green_curry#f-general-functions-and-constants)
+
+[L: lists (arrays)](https://github.com/lightalkmst/green_curry#l-1-list-and-2-lists-functions)
+
+note: lists are assumed to be dense, meaning all data is contiguous.
+
+[D: dictionaries (objects)](https://github.com/lightalkmst/green_curry#d-dictionary-functions)
+
+[S: strings](https://github.com/lightalkmst/green_curry#s-string-functions)
+
 This library is to provide support for functional programming. Though some other libraries exist that expose functional programming in JavaScript, they take a partially object-oriented approach that dilutes a lot of the value of a functional style. Though this mixture can be useful, those libraries have not closed the gap caused by some of JavaScript's idiosyncracies.
 
 I believe that what's held JavaScript back from being adopted as a functional programming language is its lack of a purely functional library. Functional programming's rewards are reaped best when currying is available, enabling point-free form to increase the abstractness and modularity of the code. One of the strengths of functional programming is that a vast majority of boilerplate is already replaced by higher-order library functions. As these functions are all very general, abstract ideas fueled by inversion of control, these could possibly never be outdated.
@@ -49,17 +61,6 @@ An understanding of the typed lambda calculus is required for effective use of t
 An understanding of the JavaScript type system is recommended for greater use of this library (my type signatures are not strict; following/enforcing a type system by using the appropriate functions keeps code clear, but careful use of type coercion has its rewards)
 
 An understanding of closures and mutability is recommended for greater use of this library (all functions are pure, except F.c and F.p)
-
-The contents of this package are organized into submodules.
-
-F: general functions and constants
-
-L: lists (arrays)
-note: lists are assumed to be dense, meaning all data is contiguous.
-
-D: dictionaries (objects)
-
-S: strings
 
 ## globalize
 Pulls the included submodules into global scope to obviate the need for fully-qualifying each resource
