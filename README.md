@@ -657,329 +657,330 @@ L.unzip ([[1, 2], [3, 4], [5, 6]]) // [[1, 3, 5], [2, 4, 6]]
 ### 2 list functions
 #### L.append : 'a list -> 'a list -> 'a list
 Returns (arg1) pre-pended to (arg2)
-
-    L.append ([1, 2, 3]) ([4, 5, 6])
-
+```javascript
+L.append ([1, 2, 3]) ([4, 5, 6])
+```
 #### L.uneq_length : 'a list -> 'b list -> bool
 Returns if (arg1) and (arg2) have unequal length
-
-    L.uneq_length ([1, 2, 3]) ([4, 5, 6]) // false
-    L.uneq_length ([1, 2, 3]) ([4, 5, 6, 7]) // true
-
+```javascript
+L.uneq_length ([1, 2, 3]) ([4, 5, 6]) // false
+L.uneq_length ([1, 2, 3]) ([4, 5, 6, 7]) // true
+```
 #### L.iter2 : ('a -> 'b -> unit) -> 'a list -> 'b list -> unit
 If (arg2) and (arg3) have unequal lengths
 
 Then throws exception F.e
 
 Else same as L.iter, except additionally passing the element of (arg3)
-
-    L.iter2 (h1 => h2 => F.log (`${h1}, ${h2}`)) ([1, 2]) ([3, 4]) // prints '1, 3' then '2, 4'
-
+```javascript
+L.iter2 (h1 => h2 => F.log (`${h1}, ${h2}`)) ([1, 2]) ([3, 4]) // prints '1, 3' then '2, 4'
+```
 #### L.iteri2 : (int -> 'a -> 'b -> unit) -> 'a list -> 'b list -> unit
 If (arg2) and (arg3) have unequal lengths
 
 Then throws exception F.e
 
 Else same as L.iter2, except additionally passing the index
-
-    L.iteri2 (i => h1 => h2 => F.log (`${i}: ${h1}, ${h2}`)) ([1, 2]) ([3, 4]) // prints '0: 1, 3' then '1: 2, 4'
-
+```javascript
+L.iteri2 (i => h1 => h2 => F.log (`${i}: ${h1}, ${h2}`)) ([1, 2]) ([3, 4]) // prints '0: 1, 3' then '1: 2, 4'
+```
 #### L.fold2 : ('a -> 'b -> 'c -> 'a) -> 'a -> 'b list -> 'c list -> 'a
 If (arg2) and (arg3) have unequal lengths
 
 Then throws exception F.e
 
 Else same as L.fold, except additionally passing the element of (arg3)
-
-    L.fold (a => h1 => h2 => a + h1 + h2) (1) ([1, 2]) ([3, 4]) // 11
-
+```javascript
+L.fold (a => h1 => h2 => a + h1 + h2) (1) ([1, 2]) ([3, 4]) // 11
+```
 #### L.mapi2 : (int -> 'a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
 If (arg2) and (arg3) have unequal lengths
 
 Then throws exception F.e
 
 Else same as L.mapi, except additionally passing the element of (arg3)
-
-    L.mapi2 (i => h1 => h2 => i + h1 + h2) ([1, 2]) ([3, 4]) // [4, 7]
-
+```javascript
+L.mapi2 (i => h1 => h2 => i + h1 + h2) ([1, 2]) ([3, 4]) // [4, 7]
+```
 #### L.map2 : ('a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
 If (arg2) and (arg3) have unequal lengths
 
 Then throws exception F.e
 
 Else same as L.map, except additionally passing the element of (arg3)
-
-    L.map2 (F['+']) ([1, 2]) ([3, 4]) // [4, 6]
-
+```javascript
+L.map2 (F['+']) ([1, 2]) ([3, 4]) // [4, 6]
+```
 #### L.for_all2 : ('a -> 'b -> bool) -> 'a list -> 'b list -> bool
 If (arg2) and (arg3) have unequal lengths
 
 Then throws exception F.e
 
 Else same as L.for_all, except additionally passing the element of (arg3)
-
-    L.for_all2 (F['=']) ([3, 3]) ([3, 3]) // true
-    L.for_all2 (F['=']) ([1, 3]) ([3, 3]) // false
-    L.for_all2 (F['=']) ([]) ([]) // true
-
+```javascript
+L.for_all2 (F['=']) ([3, 3]) ([3, 3]) // true
+L.for_all2 (F['=']) ([1, 3]) ([3, 3]) // false
+L.for_all2 (F['=']) ([]) ([]) // true
+```
 #### L.exists2 : ('a -> 'b -> bool) -> 'a list -> 'b list -> bool
 If (arg2) and (arg3) have unequal lengths
 
 Then throws exception F.e
 
 Else same as L.exists, except additionally passing the element of (arg3)
-
-    L.exists2 (F['=']) ([3, 3]) ([3, 3]) // true
-    L.exists2 (F['=']) ([1, 3]) ([3, 3]) // true
-    L.exists2 (F['=']) ([]) ([]) // false
-
+```javascript
+L.exists2 (F['=']) ([3, 3]) ([3, 3]) // true
+L.exists2 (F['=']) ([1, 3]) ([3, 3]) // true
+L.exists2 (F['=']) ([]) ([]) // false
+```
 #### L.zip : 'a list -> 'b list -> ('a * 'b) list
 If (arg2) and (arg3) have unequal lengths
 
 Then throws exception F.e
 
 Else returns the list with each element the list with the element of (arg1) first and the element of (arg2) second
-
-    L.zip ([1, 2]) ([3, 4]) // [[1, 3], [2, 4]]
-
+```javascript
+L.zip ([1, 2]) ([3, 4]) // [[1, 3], [2, 4]]
+```
 ## D (dictionary functions)
 #### D.is_empty : 'a, 'b dictionary -> bool
 Returns if (arg1) is empty
-
-    D.is_empty ({}) // true
-    D.is_empty ({c: 'Hint: 3?'}) // false
-
+```javascript
+D.is_empty ({}) // true
+D.is_empty ({c: 'Hint: 3?'}) // false
+```
 #### D.get : 'a -> 'a, 'b dictionary -> 'b
 Returns the value in (arg2) with key (arg1)
-
-    D.get ('c') ({c: 'Hint: 3?'}) // 'Hint: 3?'
-
+```javascript
+D.get ('c') ({c: 'Hint: 3?'}) // 'Hint: 3?'
+```
 #### D.create : ('a * 'b) list -> 'a, 'b dictionary
 Returns the dictionary with pairs of each element with the first element as the key and the second element as the value
-
-    D.create ([['Hint', '3?'], ['Not_a_Hint', 'You're already dead']]) // {Hint: '3?', Not_a_Hint: 'You're already dead'}
-
+```javascript
+D.create ([['Hint', '3?'], ['Not_a_Hint', 'You're already dead']]) // {Hint: '3?', Not_a_Hint: 'You're already dead'}
+```
 #### D.keys : 'a, 'b dictionary -> 'a list
 Returns a list of the keys of (arg1)
-
-    D.keys ({
-        Hint: '3?', 
-        Not_a_Hint: 'You're already dead',
-    }) // ['Hint', 'Not_a_Hint']
-
+```javascript
+D.keys ({
+    Hint: '3?', 
+    Not_a_Hint: 'You're already dead',
+}) // ['Hint', 'Not_a_Hint']
+```
 #### D.vals : 'a, 'b dictionary -> 'b list
 Returns a list of the values of (arg1)
-
-    D.keys ({
-        Hint: '3?',
-        Not_a_Hint: 'You're already dead',
-    }) // ['3?', 'You're already dead']
-
+```javascript
+D.keys ({
+    Hint: '3?',
+    Not_a_Hint: 'You're already dead',
+}) // ['3?', 'You're already dead']
+```
 #### D.pairs : 'a, 'b dictionary -> ('a * 'b) list
 Returns a list of the key, value pairs of (arg1)
-
-    D.keys ({
-        Hint: '3?',
-        Not_a_Hint: 'You're already dead',
-    }) // [['Hint', '3?'], ['Not_a_Hint', 'You're already dead']]
-
+```javascript
+D.keys ({
+    Hint: '3?',
+    Not_a_Hint: 'You're already dead',
+}) // [['Hint', '3?'], ['Not_a_Hint', 'You're already dead']]
+```
 #### D.iter : ('a -> unit) -> 'b, 'a dictionary -> unit
 Same as L.iteri on the values of (arg2), except with keys instead of indices
-
-    D.iter (F.log) ({
-        Hint: '3?',
-        Not_a_Hint: 'You're already dead',
-    }) // prints '3' then 'You're already dead'
-
+```javascript
+D.iter (F.log) ({
+    Hint: '3?',
+    Not_a_Hint: 'You're already dead',
+}) // prints '3' then 'You're already dead'
+```
 #### D.iterk : ('a -> 'b -> unit) -> 'a, 'b dictionary -> unit
 Same as D.iter, except additionally passing the key
-
-    D.iterk (k => v => F.log (`${k}: ${v}') ({
-        Hint: '3?',
-        Not_a_Hint: 'You're already dead',
-    }) // prints 'Hint: 3?' then 'Not_a_Hint: You're already dead'
-
+```javascript
+D.iterk (k => v => F.log (`${k}: ${v}') ({
+    Hint: '3?',
+    Not_a_Hint: 'You're already dead',
+}) // prints 'Hint: 3?' then 'Not_a_Hint: You're already dead'
+```
 #### D.fold : ('a -> 'b -> 'a) -> 'a -> ('c, 'b) list -> 'a
 Same as L.fold on the values of (arg2)
-
-    D.fold (F['+']) (1) ({
-        a: 1,
-        b: 2,
-        c: 3,
-    }) // 7
-
+```javascript
+D.fold (F['+']) (1) ({
+    a: 1,
+    b: 2,
+    c: 3,
+}) // 7
+```
 #### D.map : ('a -> 'b) -> 'c, 'a dictionary -> 'c, 'b dictionary
 Same as L.map on the values of (arg2)
-
-    D.map (F['+'] (3)) ({
-        a: 1,
-        b: 2,
-        c: 3,
-    }) // {a: 4, b: 5, c: 6}
-
+```javascript
+D.map (F['+'] (3)) ({
+    a: 1,
+    b: 2,
+    c: 3,
+}) // {a: 4, b: 5, c: 6}
+```
 #### D.mapk : ('a -> 'b -> 'c) -> 'a, 'b dictionary -> 'a, 'c dictionary
 Same as D.map, except additionally passing the key
-
-    D.map (k => v => `${k}: ${v}') ({
-        a: 1,
-        b: 2,
-        c: 3,
-    }) // {a: 'a: 1', b: 'b: 2', c: 'c: 3'}
-
+```javascript
+D.map (k => v => `${k}: ${v}') ({
+    a: 1,
+    b: 2,
+    c: 3,
+}) // {a: 'a: 1', b: 'b: 2', c: 'c: 3'}
+```
 #### D.find : ('a -> bool) -> 'b, 'a dictionary -> 'a
 Same as L.find on the values of (arg2)
-
-    D.find (F['='] ('3?')) ({
-        Hint: '3?',
-        Not_a_Hint: 'You're already dead',
-    }) // '3?'
-
+```javascript
+D.find (F['='] ('3?')) ({
+    Hint: '3?',
+    Not_a_Hint: 'You're already dead',
+}) // '3?'
+```
 #### D.filter : ('a -> bool) -> 'a list -> 'a list
 Same as L.filter on the values of (arg2)
-
-    D.filter (F['='] ('3?')) ({
-        Hint: '3?',
-        Not_a_Hint: 'You're already dead',
-    }) // {Hint: '3?'}
-
+```javascript
+D.filter (F['='] ('3?')) ({
+    Hint: '3?',
+    Not_a_Hint: 'You're already dead',
+}) // {Hint: '3?'}
+```
 #### D.filterk : ('a -> 'b -> bool) -> 'a list -> 'a list
 Same as D.filter, except additionally passed the key
-
-    D.filterk (k => v => `${k}: ${v}` == 'Hint: 3?') ({
-        Hint: '3?',
-        Not_a_Hint: 'You're already dead',
-    }) // {Hint: '3?'}
-
+```javascript
+D.filterk (k => v => `${k}: ${v}` == 'Hint: 3?') ({
+    Hint: '3?',
+    Not_a_Hint: 'You're already dead',
+}) // {Hint: '3?'}
+```
 #### D.for_all : ('a -> bool) -> 'b, 'a dictionary -> bool
 Same as L.for_all on the values of (arg2)
-
-    D.for_all (F['='] ('3?')) ({
-        Hint: '3?',
-        Not_a_Hint: 'You're already dead',
-    }) // false
-
+```javascript
+D.for_all (F['='] ('3?')) ({
+    Hint: '3?',
+    Not_a_Hint: 'You're already dead',
+}) // false
+```
 #### D.exists : ('a -> bool) -> 'b, 'a dictionary -> bool
 Same as L.exists on the values of (arg2)
-
-    D.exists (F['='] ('3?')) ({
-        Hint: '3?',
-        Not_a_Hint: 'You're already dead',
-    }) // true
-
+```javascript
+D.exists (F['='] ('3?')) ({
+    Hint: '3?',
+    Not_a_Hint: 'You're already dead',
+}) // true
+```
 #### D.contains : 'a -> 'b, 'a dictionary -> bool
 Same as L.contains on the values of (arg2)
-
-    D.exists ('3?') ({
-        Hint: '3?',
-        Not_a_Hint: 'You're already dead',
-    }) // true
-
+```javascript
+D.exists ('3?') ({
+    Hint: '3?',
+    Not_a_Hint: 'You're already dead',
+}) // true
+```
 #### D.length : 'a, 'b dictionary -> int
 Returns the number of pairs in (arg1)
-
-    D.length ({
-        Hint: '3?',
-        Not_a_Hint: 'You're already dead',
-    }) // 2
-
+```javascript
+D.length ({
+    Hint: '3?',
+    Not_a_Hint: 'You're already dead',
+}) // 2
+```
 #### D.partition : ('a -> bool) -> 'b, 'a dictionary -> (('b, 'a) dictionary * ('b, 'a) dictionary)
 Same as L.partition on the values of (arg2)
-
-    D.partition (F['='] ('3?')) ({
-        Hint: '3?',
-        Not_a_Hint: 'You're already dead',
-    }) // [{Hint: '3?'}, {Not_a_Hint: 'You're already dead'}]
-
+```javascript
+D.partition (F['='] ('3?')) ({
+    Hint: '3?',
+    Not_a_Hint: 'You're already dead',
+}) // [{Hint: '3?'}, {Not_a_Hint: 'You're already dead'}]
+```
 #### D.extend : 'a, 'b dictionary -> 'a, 'b dictionary -> 'a, 'b dictionary
 Returns (arg1) overlaid by (arg2)
-
-    D.extend ({
-        Hint: '3?',
-        a: '3',
-    }) ({
-        Not_a_Hint: 'You're already dead',
-        a: '4',
-    }) // {Hint: '3?', Not_a_Hint: 'You're already dead', a: '4'}
-
+```javascript
+D.extend ({
+    Hint: '3?',
+    a: '3',
+}) ({
+    Not_a_Hint: 'You're already dead',
+    a: '4',
+}) // {Hint: '3?', Not_a_Hint: 'You're already dead', a: '4'}
+```
 #### D.delete : 'a, 'b dictionary -> 'a list -> 'a, 'b dictionary
 Returns (arg1) without the pairs without the keys in (arg2)
-
-    D.delete ({
-        Hint: '3?',
-        Not_a_Hint: 'You're already dead',
-    }) (['Not_a_Hint']) // {Hint: '3?'}
-
+```javascript
+D.delete ({
+    Hint: '3?',
+    Not_a_Hint: 'You're already dead',
+}) (['Not_a_Hint']) // {Hint: '3?'}
+```
 ## S (string functions)
 #### S.length : string -> int
 Returns the length of (arg1)
-
-    S.length ('Hint: 3?') // 8
-
+```javascript
+S.length ('Hint: 3?') // 8
+```
 #### S.get : int -> string -> string
 Returns the character at (arg1) in (arg2)
-
-    S.get (6) ('Hint: 3?') // 3
-
+```javascript
+S.get (6) ('Hint: 3?') // 3
+```
 #### S.substr : int -> int -> string -> string
 Returns the substring from (arg1) to (arg2) of (arg3) with some slice logic
-
-    S.substr (6) (7) ('Hint: 3?') // 3
-
+```javascript
+S.substr (6) (7) ('Hint: 3?') // 3
+```
 #### S.index : string -> string -> int
 Returns the first index at which (arg2) appears in (arg1)
-
-    S.index ('Not_a_Hint: You're already dead') ('a') // 4
-
+```javascript
+S.index ('Not_a_Hint: You're already dead') ('a') // 4
+```
 #### S.contains : string -> string -> bool
 Returns if (arg2) appears in (arg1)
-
-    S.contains ('Hint: 3?') ('3') // true
-
+```javascript
+S.contains ('Hint: 3?') ('3') // true
+```
 #### S.compare : string -> string -> int
 Follows normal comparator rules for strings
-
-    S.compare ('Hint: 3?') ('Not_a_Hint: You're already dead') // -1
-
+```javascript
+S.compare ('Hint: 3?') ('Not_a_Hint: You're already dead') // -1
+```
 #### S.match : string -> regex -> string list
 If (arg1) is matched by (arg2)
 
 Then return a list of the match followed by captured groups
 
 Else return null
-
-    S.match ('Hint: 3?') (/(.)?$/) // ['3?', '3']
-
+```javascript
+S.match ('Hint: 3?') (/(.)?$/) // ['3?', '3']
+```
 #### S.replace : string -> regex -> string -> string
 Returns (arg1) with matches of (arg2) replaced by (arg3)
-
-    S.replace ('Hint: 3?') (/$/) ('
-
+```javascript
+S.replace ('Hint: 3?') (/$/) ('
+```
 #### S.rindex : string -> string -> int
 Same as S.index, except with the last occurance
-
-    S.rindex ('Not_a_Hint: You're already dead') ('3') // 29
-
+```javascript
+S.rindex ('Not_a_Hint: You're already dead') ('3') // 29
+```
 #### S.search : string -> regex -> int
 Returns the first index that (arg2) matches in (arg1)
-
-    S.search ('Not_a_Hint: You're already dead') (/^/) // 0
-
+```javascript
+S.search ('Not_a_Hint: You're already dead') (/^/) // 0
+```
 #### S.split : string -> regex -> string list
 Returns a list of the substrings of (arg1) split by (arg2)
-
-    S.split ('Hint: 3?') (/:/) // ['Hint', ' 3?']
-
+```javascript
+S.split ('Hint: 3?') (/:/) // ['Hint', ' 3?']
+```
 #### S.lower : string -> string
 Returns (arg1) with all characters lowercase
-
-    S.lower ('Hint: 3?') // 'hint: 3?'
-
+```javascript
+S.lower ('Hint: 3?') // 'hint: 3?'
+```
 #### S.upper : string -> string
 Returns (arg1) with all characters uppercase
-
-    S.upper ('Hint: 3?') // 'HINT: 3?'
-
+```javascript
+S.upper ('Hint: 3?') // 'HINT: 3?'
+```
 #### S.trim : string -> string
 Returns (arg1) without surrounding whitespace
-
-    S.trim (' Hint: 3? ') // 'Hint: 3?'
+```javascript
+S.trim (' Hint: 3? ') // 'Hint: 3?'
+```
