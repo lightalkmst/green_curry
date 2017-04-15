@@ -6,7 +6,7 @@
 
 This library is to provide support for functional programming. Though some other libraries exist that expose functional programming in JavaScript, they take a partially object-oriented approach that dilutes a lot of the value of a functional style. Though this mixture can be useful, those libraries have not closed the gap caused by some of JavaScript's idiosyncracies.
 
-I believe that what's held JavaScript back from being adopted as a functional programming language is its lack of a purely functional library. Functional programming's rewards are reaped best when currying is available, enabling point-free form to increase the abstractness and modularity of the code. One of the strengths of functional programming is that a vast majority of boilerplate is already replaced by higher-order library functions.
+I believe that what's held JavaScript back from being adopted as a functional programming language is its lack of a purely functional library. Functional programming's rewards are reaped best when currying is available, enabling point-free form to increase the abstractness and modularity of the code. One of the strengths of functional programming is that a vast majority of boilerplate is already replaced by higher-order library functions. As these functions are all very general, abstract ideas fueled by inversion of control, these could possibly never be outdated.
 
 Here is an example:
 
@@ -31,7 +31,7 @@ Here is an example:
 
 An understanding of the typed lambda calculus is required for effective use of this library as all functions provided by this library are curried (all functions are free of self-references, allowing their safe use as first-class functions).
 
-An understanding of the JavaScript type system is recommended for greater use of this library (my type signatures are not strict)
+An understanding of the JavaScript type system is recommended for greater use of this library (my type signatures are not strict; following/enforcing a type system by using the appropriate functions keeps code clear, but careful use of type coercion has its rewards)
 
 An understanding of closures and mutability is recommended for greater use of this library (all functions are pure, except F.c and F.p)
 
@@ -748,13 +748,12 @@ Returns a list of the key, value pairs of (arg1)
     }) // [['Hint', '3?'], ['Not_a_Hint', 'You're already dead']]
 
 #### D.iter : ('a -> unit) -> 'b, 'a dictionary -> unit
-Same as L.iteri, except with keys instead of indices
+Same as L.iteri on the values of (arg2), except with keys instead of indices
 
     D.iter (F.log) ({
         Hint: '3?',
         Not_a_Hint: 'You're already dead',
     }) // prints '3' then 'You're already dead'
-
 
 #### D.iterk : ('a -> 'b -> unit) -> 'a, 'b dictionary -> unit
 Same as D.iter, except additionally passing the key
@@ -763,3 +762,114 @@ Same as D.iter, except additionally passing the key
         Hint: '3?',
         Not_a_Hint: 'You're already dead',
     }) // prints 'Hint: 3?' then 'Not_a_Hint: You're already dead'
+
+#### D.fold : ('a -> 'b -> 'a) -> 'a -> ('c, 'b) list -> 'a
+Same as L.fold on the values of (arg2)
+
+    D.fold (F['+']) (1) ({
+        a: 1,
+        b: 2,
+        c: 3,
+    }) // 7
+
+#### D.map : ('a -> 'b) -> 'c, 'a dictionary -> 'c, 'b dictionary
+Same as L.map on the values of (arg2)
+
+    D.map (F['+'] (3)) ({
+        a: 1,
+        b: 2,
+        c: 3,
+    }) // {a: 4, b: 5, c: 6}
+
+#### D.mapk : ('a -> 'b -> 'c) -> 'a, 'b dictionary -> 'a, 'c dictionary
+Same as D.map, except additionally passing the key
+
+    D.map (k => v => `${k}: ${v}') ({
+        a: 1,
+        b: 2,
+        c: 3,
+    }) // {a: 'a: 1', b: 'b: 2', c: 'c: 3'}
+
+#### D.find : ('a -> bool) -> 'b, 'a dictionary -> 'a
+Same as L.find on the values of (arg2)
+
+    D.find (F['='] ('3?')) ({
+        Hint: '3?',
+        Not_a_Hint: 'You're already dead',
+    }) // '3?'
+
+#### D.filter : ('a -> bool) -> 'a list -> 'a list
+Same as L.filter on the values of (arg2)
+
+    D.filter (F['='] ('3?')) ({
+        Hint: '3?',
+        Not_a_Hint: 'You're already dead',
+    }) // {Hint: '3?'}
+
+#### D.filterk : ('a -> 'b -> bool) -> 'a list -> 'a list
+Same as D.filter, except additionally passed the key
+
+    D.filterk (k => v => `${k}: ${v}` == 'Hint: 3?') ({
+        Hint: '3?',
+        Not_a_Hint: 'You're already dead',
+    }) // {Hint: '3?'}
+
+#### D.for_all : ('a -> bool) -> 'b, 'a dictionary -> bool
+Same as L.for_all on the values of (arg2)
+
+    D.for_all (F['='] ('3?')) ({
+        Hint: '3?',
+        Not_a_Hint: 'You're already dead',
+    }) // false
+
+#### D.exists : ('a -> bool) -> 'b, 'a dictionary -> bool
+Same as L.exists on the values of (arg2)
+
+    D.exists (F['='] ('3?')) ({
+        Hint: '3?',
+        Not_a_Hint: 'You're already dead',
+    }) // true
+
+#### D.contains : 'a -> 'b, 'a dictionary -> bool
+Same as L.contains on the values of (arg2)
+
+    D.exists ('3?') ({
+        Hint: '3?',
+        Not_a_Hint: 'You're already dead',
+    }) // true
+
+#### D.length : 'a, 'b dictionary -> int
+Returns the number of pairs in (arg1)
+
+    D.length ({
+        Hint: '3?',
+        Not_a_Hint: 'You're already dead',
+    }) // 2
+
+#### D.partition : ('a -> bool) -> 'b, 'a dictionary -> (('b, 'a) dictionary * ('b, 'a) dictionary)
+Same as L.partition on the values of (arg2)
+
+    D.partition (F['='] ('3?')) ({
+        Hint: '3?',
+        Not_a_Hint: 'You're already dead',
+    }) // [{Hint: '3?'}, {Not_a_Hint: 'You're already dead'}]
+
+#### D.extend : 'a, 'b dictionary -> 'a, 'b dictionary -> 'a, 'b dictionary
+Returns (arg1) overlaid by (arg2)
+
+    D.extend ({
+        Hint: '3?',
+        a: '3',
+    }) ({
+        Not_a_Hint: 'You're already dead',
+        a: '4',
+    }) // {Hint: '3?', Not_a_Hint: 'You're already dead', a: '4'}
+
+#### D.delete : 'a, 'b dictionary -> 'a list -> 'a, 'b dictionary
+Returns (arg1) without the pairs without the keys in (arg2)
+
+    D.delete ({
+        Hint: '3?',
+        Not_a_Hint: 'You're already dead',
+    }) (['Not_a_Hint']) // {Hint: '3?'}
+
