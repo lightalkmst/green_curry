@@ -1,0 +1,12 @@
+{
+  "name": "green_curry",
+  "version": "0.0.7",
+  "description": "Curried functional programming library",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node main.js"
+  },
+  "author": "rook_master2000@yahoo.com",
+  "license": "ISC"
+}
