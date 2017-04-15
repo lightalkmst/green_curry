@@ -1,9 +1,15 @@
 # green_curry: Curried functional programming library
 
-An understanding of the typed lambda calculus is required for effective use of this library.
-(Almost) all functions provided by this library are curried.
-An understanding of the JavaScript type system is recommended for greater use of this library (my type signatures are not exact).
+An understanding of the typed lambda calculus is required for effective use of this library
+
+(Almost) all functions provided by this library are curried
+
+An understanding of the JavaScript type system is recommended for greater use of this library
+
+(my type signatures are not strict)
+
 All functions are pure, except F.c and F.p.
+
 
 The contents of this package are organized into submodules.
 
@@ -67,6 +73,7 @@ Throws the exception F.e if passed true, does nothing otherwise
 ### log
 ##### 'a -> unit
 An alias for console.log.bind (console)
+
 Aliasing and calling console.log by itself without binding will throw an exception
 
     var f = console.log
@@ -77,7 +84,9 @@ Aliasing and calling console.log by itself without binding will throw an excepti
 ### eval
 ##### string -> 'a
 A wrapper for eval that will always operate within calling scope
+
 An unaliased call to eval will operate within the calling scope
+
 An aliased call to eval will operate at the global scope
 
     var a = 'Hint: 3?'
@@ -171,7 +180,8 @@ Bitwise Or the arguments
 ### ||
 ##### bool -> bool
 Logical Or the arguments
-Note: the arguments are evaluated eagerly so this does not short-circuit
+
+(note: the arguments are evaluated eagerly so this does not short-circuit)
 
     F['||'] (true) (true) // true
 
@@ -184,7 +194,8 @@ Bitwise And the arguments
 ### &&
 ##### bool -> bool
 Logical And the arguments
-Note: the arguments are evaluated eagerly so this does not short-circuit
+
+(note: the arguments are evaluated eagerly so this does not short-circuit)
 
     F['&&'] (true) (true) // true
 
@@ -196,19 +207,25 @@ Bitwise Xor the arguments
 
 ### ??
 ##### 'a -> 'a -> 'a
-If (argument 1) is defined
-Then return (argument 1)
-Else return (argument 2)
-Note: the arguments are evaluated eagerly so this does not short-circuit
+If (arg 1) is defined
+
+Then return (arg 1)
+
+Else return (arg 2)
+
+note: the arguments are evaluated eagerly so this does not short-circuit
 
     F['??'] (9) (3) // 9
     F['??'] (undefined) (3) // 3
 
 ### ~??
 ##### 'a -> 'a -> 'a
-If (argument 2) is defined
-Then return (argument 2)
-Else return (argument 1)
+If (arg 2) is defined
+
+Then return (arg 2)
+
+Else return (arg 1)
+
 Note: the arguments are evaluated eagerly so this does not short-circuit
 
     F['~??'] (3) (9) // 9
@@ -216,14 +233,14 @@ Note: the arguments are evaluated eagerly so this does not short-circuit
 
 ### ?:
 ##### bool -> 'a -> 'a -> 'a
-Note: the arguments are evaluated eagerly so this does not short-circuit
+(note: the arguments are evaluated eagerly so this does not short-circuit)
 
     F['?:'] (true) (3) (9) // 3
     F['?:'] (false) (3) (9) // 9
 
 ### ~?:
 ##### 'a -> 'a -> bool -> 'a
-Note: the arguments are evaluated eagerly so this does not short-circuit
+(note: the arguments are evaluated eagerly so this does not short-circuit)
 
     F['~?:'] (3) (9) (true) // 3
     F['~?:'] (3) (9) (false) // 9
@@ -231,13 +248,13 @@ Note: the arguments are evaluated eagerly so this does not short-circuit
 ### |>
 ### @@
 ##### 'a -> ('a -> 'b) -> 'b
-Pipes (argument 1) into (argument 2)
+Pipes (arg 1) into (arg 2)
 
     F['|>'] (3) (F['+'] (3)) // 6
 
 ### <|
 ##### ('a -> 'b) -> 'a -> 'b
-Pipes (argument 2) into (argument 1)
+Pipes (arg 2) into (arg 1)
 
     F['<|'] (F['+'] (3)) (3) // 6
 
@@ -264,15 +281,15 @@ Negates the predicate
 
 ### try
 ##### bool -> (unit -> 'a) list -> 'a
-Invokes the first function in (argument 2)
+Invokes the first function in (arg 2)
 
 If the function throws an exception
 Then
-&nbsp;&nbsp;&nbsp;&nbsp;If (argument 1) is true
+&nbsp;&nbsp;&nbsp;&nbsp;If (arg 1) is true
 
 &nbsp;&nbsp;&nbsp;&nbsp;Then the exception is printed to console
 
-&nbsp;&nbsp;&nbsp;&nbsp;Recurse this function with (argument 1) and the remainder of (argument 2)
+&nbsp;&nbsp;&nbsp;&nbsp;Recurse this function with (arg 1) and the remainder of (arg 2)
 
 Else the result is returned
 
@@ -328,7 +345,7 @@ Reverse function composes the argument, but with a temporary DSL
 
 ### p
 ##### ? -> (? -> ?) list -> ?
-Pipes (argument 1) to the reverse function composed (argument 2), but with a temporary DSL
+Pipes (arg 1) to the reverse function composed (arg 2), but with a temporary DSL
 
     F.p ('Hint: 3?') (
         F.tap (F.log)
@@ -347,13 +364,13 @@ The memoization has O(n) lookup
 
 ### times
 ##### int -> (unit -> unit) -> unit
-Invokes (argument 2) (argument 1) times
+Invokes (arg 2) (arg 1) times
 
     F.times (3) (() => F.log ('Hint: 3?')) // prints 'Hint: 3?' 3 times
 
 ### after
 ##### int -> ('a -> 'b') -> ('a -> unit/'b)
-Returns a version of (argument 2) that does nothing and returns undefined until the (argument 1)th time when it reverts to normal
+Returns a version of (arg 2) that does nothing and returns undefined until the (arg 1)th time when it reverts to normal
 
     var f = F.after (3) (F.tap (F.log))
     f ('Hint: 3?') // undefined // does nothing
@@ -362,7 +379,7 @@ Returns a version of (argument 2) that does nothing and returns undefined until 
 
 ### before
 ##### int -> ('a -> 'b') -> ('a -> unit/'b)
-Returns a version of (argument 2) that operates normally until the (argument 1)th time when it starts doing nothing and returns undefined
+Returns a version of (arg 2) that operates normally until the (arg 1)th time when it starts doing nothing and returns undefined
 
     var f = F.before (3) (F.tap (F.log))
     f ('Hint: 3?') // 'Hint: 3?' // prints 'Hint: 3?'
@@ -392,7 +409,7 @@ Binds the self-references for functions in the map to the map and returns the ma
 ## L (1 list and 2 lists functions)
 ### cons
 ##### 'a -> 'a list -> 'a list
-Appends (argument 1) to the front of (argument 2)
+Appends (arg 1) to the front of (arg 2)
 
     L.cons (1) ([2, 3, 4]) // [1, 2, 3, 4]
 
@@ -423,8 +440,9 @@ Returns true if the list is empty, false otherwise
 
 ### get
 ##### int -> 'a list -> 'a
-If (argument 1) is greater than (argument 2)'s length
+If (arg 1) is greater than (arg 2)'s length
 Then throws an F.e exception
-Else returns the element at index (argument 1) in (argument 2) otherwise
+Else returns the element at index (arg 1) in (arg 2) otherwise
 
-    L.get 
+    L.get (3) ([1, 2, 3]) // throws F.e
+    L.get (3) ([1, 2, 3, 4]) // 4
