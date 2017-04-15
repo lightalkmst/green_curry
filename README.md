@@ -2,6 +2,8 @@
 ## Colorful and healthy!
 (ES6 required)
 
+(please disregard the culture references in the examples)
+
 This library is to provide support for functional programming. Though some other libraries exist that expose functional programming in JavaScript, they take a partially object-oriented approach that dilutes a lot of the value of a functional style. Though this mixture can be useful, those libraries have not closed the gap caused by some of JavaScript's idiosyncracies.
 
 I believe that what's held JavaScript back from being adopted as a functional programming language is its lack of a purely functional library. Functional programming's rewards are reaped best when currying is available, enabling point-free form to increase the abstractness and modularity of the code. One of the strengths of functional programming is that a vast majority of boilerplate is already replaced by higher-order library functions.
@@ -41,12 +43,12 @@ F: general functions and constants
 L: lists (arrays)
 note: lists are assumed to be dense, meaning all data is contiguous.
 
-M: maps (objects)
+D: dictionaries (objects)
 
 S: strings
 
 ## globalize
-This method can be called to pull the included submodules into the top-level to obviate the need for fully-qualifying the asset
+This method can be called to pull the included submodules into global scope to obviate the need for fully-qualifying each resource
 All examples on this page will assume this has already been called
 
     var green_curry = require ('green_curry')
@@ -507,19 +509,17 @@ Returns a reverse of the list
 
     L.rev ([1, 2, 3]) // [3, 2, 1]
 
-#### L.iteri : (int -> 'a -> unit) -> 'a list -> unit
-For each element in (arg2)
-
-&nbsp;&nbsp;&nbsp;&nbsp;Passes the index and element to (arg1)
-
-    L.iteri (i => h => F.log (`${i}: ${h}`)) ([1, 2, 3]) // prints '0: 1' then '1: 2' then '2: 3'
-
 #### L.iter : ('a -> unit) -> 'a list -> unit
 For each element in (arg2)
 
 &nbsp;&nbsp;&nbsp;&nbsp;Passes the element to (arg1)
 
     L.iter (F.log) ([1, 2, 3]) // prints '1' then '2' then '3'
+
+#### L.iteri : (int -> 'a -> unit) -> 'a list -> unit
+Same as L.iter, except additionally passes the index as well
+
+    L.iteri (i => h => F.log (`${i}: ${h}`)) ([1, 2, 3]) // prints '0: 1' then '1: 2' then '2: 3'
 
 #### L.fold : ('a -> 'b -> 'a) -> 'a -> 'b list -> 'a
 (arg2) is the initial state of the accumulator
@@ -536,13 +536,7 @@ If (arg2) is empty
 
 Then throws the exception F.e
 
-Else
-
-&nbsp;&nbsp;&nbsp;&nbsp;The first element in (arg2) is the initial state of the accumulator
-
-&nbsp;&nbsp;&nbsp;&nbsp;(arg1) is iteratively passed the previous accumulator and the next element in (arg2)
-
-&nbsp;&nbsp;&nbsp;&nbsp;Returns the final accumulator
+Else same as L.fold, except the first element in (arg1) is taken as the initial accumulator
 
     F.reduce (F['+']) ([1, 2, 3]) // 6
     F.reduce (F['-']) ([1, 2, 3]) // -4
@@ -557,16 +551,16 @@ Returns the list of all accumulators
     F.scan (F['+']) (9) ([1, 2, 3]) // [9, 10, 12, 15]
     F.scan (F['-']) (9) ([1, 2, 3]) // [9, 8, 6, 3]
 
-#### L.mapi : (int -> 'a -> 'b) -> 'a list -> 'b list
-Returns a list that is (arg2) with each element transformed by passing the index and that element to (arg1)
-
-    F.mapi (F['+']) ([1, 2, 3]) // [1, 3, 5]
-
 #### L.map : ('a -> 'b) -> 'a list -> 'b list
 Returns (arg2) with each element transformed by passing that element to (arg1)
 
     F.map (F['+'] (3)) ([1, 2, 3]) // [4, 5, 6]
 
+#### L.mapi : (int -> 'a -> 'b) -> 'a list -> 'b list
+Same as L.map, except additionally passes the index as well
+
+    F.mapi (F['+']) ([1, 2, 3]) // [1, 3, 5]
+    
 #### L.find : ('a -> bool) -> 'a list -> 'a
 If an element exists in (arg2) for which (arg1) returns true
 
@@ -636,15 +630,6 @@ Returns if (arg1) and (arg2) have unequal length
     L.uneq_length ([1, 2, 3]) ([4, 5, 6]) // false
     L.uneq_length ([1, 2, 3]) ([4, 5, 6, 7]) // true
 
-#### L.iteri2 : (int -> 'a -> 'b -> unit) -> 'a list -> 'b list -> unit
-If (arg2) and (arg3) have unequal lengths
-
-Then throws exception F.e
-
-Else same as L.iteri, except additionally passing the element of (arg3)
-
-    L.iteri2 (i => h1 => h2 => F.log (`${i}: ${h1}, ${h2}`)) ([1, 2]) ([3, 4]) // prints '0: 1, 3' then '1: 2, 4'
-
 #### L.iter2 : ('a -> 'b -> unit) -> 'a list -> 'b list -> unit
 If (arg2) and (arg3) have unequal lengths
 
@@ -653,6 +638,15 @@ Then throws exception F.e
 Else same as L.iter, except additionally passing the element of (arg3)
 
     L.iter2 (h1 => h2 => F.log (`${h1}, ${h2}`)) ([1, 2]) ([3, 4]) // prints '1, 3' then '2, 4'
+
+#### L.iteri2 : (int -> 'a -> 'b -> unit) -> 'a list -> 'b list -> unit
+If (arg2) and (arg3) have unequal lengths
+
+Then throws exception F.e
+
+Else same as L.iter2, except additionally passing the index
+
+    L.iteri2 (i => h1 => h2 => F.log (`${i}: ${h1}, ${h2}`)) ([1, 2]) ([3, 4]) // prints '0: 1, 3' then '1: 2, 4'
 
 #### L.fold2 : ('a -> 'b -> 'c -> 'a) -> 'a -> 'b list -> 'c list -> 'a
 If (arg2) and (arg3) have unequal lengths
@@ -713,3 +707,59 @@ Else returns the list with each element the list with the element of (arg1) firs
     L.zip ([1, 2]) ([3, 4]) // [[1, 3], [2, 4]]
 
 ## D (dictionary functions)
+#### D.is_empty : 'a, 'b dictionary -> bool
+Returns if (arg1) is empty
+
+    D.is_empty ({}) // true
+    D.is_empty ({c: 'Hint: 3?'}) // false
+
+#### D.get : 'a -> 'a, 'b dictionary -> 'b
+Returns the value in (arg2) with key (arg1)
+
+    D.get ('c') ({c: 'Hint: 3?'}) // 'Hint: 3?'
+
+#### D.create : ('a * 'b) list -> 'a, 'b dictionary
+Returns the dictionary with pairs of each element with the first element as the key and the second element as the value
+
+    D.create ([['Hint', '3?'], ['Not_a_Hint', 'You're already dead']]) // {Hint: '3?', Not_a_Hint: 'You're already dead'}
+
+#### D.keys : 'a, 'b dictionary -> 'a list
+Returns a list of the keys of (arg1)
+
+    D.keys ({
+        Hint: '3?', 
+        Not_a_Hint: 'You're already dead',
+    }) // ['Hint', 'Not_a_Hint']
+
+#### D.vals : 'a, 'b dictionary -> 'b list
+Returns a list of the values of (arg1)
+
+    D.keys ({
+        Hint: '3?',
+        Not_a_Hint: 'You're already dead',
+    }) // ['3?', 'You're already dead']
+
+#### D.pairs : 'a, 'b dictionary -> ('a * 'b) list
+Returns a list of the key, value pairs of (arg1)
+
+    D.keys ({
+        Hint: '3?',
+        Not_a_Hint: 'You're already dead',
+    }) // [['Hint', '3?'], ['Not_a_Hint', 'You're already dead']]
+
+#### D.iter : ('a -> unit) -> 'b, 'a dictionary -> unit
+Same as L.iteri, except with keys instead of indices
+
+    D.iter (F.log) ({
+        Hint: '3?',
+        Not_a_Hint: 'You're already dead',
+    }) // prints '3' then 'You're already dead'
+
+
+#### D.iterk : ('a -> 'b -> unit) -> 'a, 'b dictionary -> unit
+Same as D.iter, except additionally passing the key
+
+    D.iterk (k => v => F.log (`${k}: ${v}') ({
+        Hint: '3?',
+        Not_a_Hint: 'You're already dead',
+    }) // prints 'Hint: 3?' then 'Not_a_Hint: You're already dead'
