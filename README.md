@@ -15,16 +15,16 @@ Here is an example:
     // string -> 'a
     // given a path, concatenates all of the files and evals the result
     var eval_dir = h => F.p (h) (
-      // get the list of file names in the directory
-      fs.readdirSync
-      // append the path before each file name
-      >> L.map (F['+'] (h))
-      // transform each file path to its file contents
-      >> L.map (h => fs.readFileSync (h, 'utf8'))
-      // concatenate all of the files, delimited by ';'
-      >> L.fold (a => h => `${a};${h}`) ('')
-      // evaluate the concatenated files
-      >> F.eval
+        // get the list of file names in the directory
+        fs.readdirSync
+        // append the path before each file name
+        >> L.map (F['+'] (h))
+        // transform each file path to its file contents
+        >> L.map (h => fs.readFileSync (h, 'utf8'))
+        // concatenate all of the files, delimited by ';'
+        >> L.fold (a => h => `${a};${h}`) ('')
+        // evaluate the concatenated files
+        >> F.eval
     )
 
 An understanding of the typed lambda calculus is required for effective use of this library
@@ -92,7 +92,9 @@ Executes the given function
 
 ### F.ex_if
 ##### bool -> unit
-Throws the exception F.e if passed true, does nothing otherwise
+If passed true
+
+Then throws the exception F.e
 
     F.ex_if (true) // throws exception
     F.ex_if (false) // does nothing
@@ -152,6 +154,38 @@ Compares the arguments with hard inequality
 
     F['!=='] ('Hint: 3?') ('Hint: 3?') // false
     F['!=='] ('Hint: 3?') ('9') // true
+
+### F.>
+##### int -> int -> bool
+Returns if (arg1) is greater than (arg2)
+
+    F['>'] (3) (3) // false
+    F['>'] (3) (9) // false
+    F['>'] (9) (3) // true
+
+### F.>=
+##### int -> int -> bool
+Returns if (arg1) is greater than or equal to (arg2)
+
+    F['>='] (3) (3) // true
+    F['>='] (3) (9) // false
+    F['>='] (9) (3) // true
+
+### F.<
+##### int -> int -> bool
+Returns if (arg1) is lesser than (arg2)
+
+    F['<'] (3) (3) // false
+    F['<'] (3) (9) // true
+    F['<'] (9) (3) // false
+
+### F.<=
+##### int -> int -> bool
+Returns if (arg1) is lesser than or equal to (arg2)
+
+    F['<='] (3) (3) // true
+    F['<='] (3) (9) // true
+    F['<='] (9) (3) // false
 
 ### F.!
 ##### bool -> bool
@@ -232,6 +266,26 @@ Bitwise Xor the arguments
 
     F['^'] (3) (3) // 0
 
+### F.>>>
+##### int -> int
+Sign-propagating right shifts the arguments
+
+    F['>>>'] (9) (2) // 2
+    F['>>>'] (-9) (2) // -3
+
+### F.>>>>
+##### int -> int
+Zero-fill right shifts the arguments
+
+    F['>>>>'] (9) (2) // 2
+    F['>>>>'] (-9) (2) // -1073741821
+
+### F.<<<
+##### int -> int
+Left shifts the arguments
+
+    F['<<<'] (9) (2) // 36
+
 ### F.??
 ##### 'a -> 'a -> 'a
 If (arg1) is defined
@@ -275,13 +329,13 @@ Note: the arguments are evaluated eagerly so this does not short-circuit
 ### F.|>
 ### @@
 ##### 'a -> ('a -> 'b) -> 'b
-Pipes (arg1) into (arg2)
+passes (arg1) into (arg2)
 
     F['|>'] (3) (F['+'] (3)) // 6
 
 ### F.<|
 ##### ('a -> 'b) -> 'a -> 'b
-Pipes (arg2) into (arg1)
+passes (arg2) into (arg1)
 
     F['<|'] (F['+'] (3)) (3) // 6
 
@@ -343,7 +397,7 @@ Calls the given function after waiting the given time in ms
 
 ### F.tap
 ##### ('a -> 'b) -> 'a -> 'a
-Pipes argument 2 to argument 1 and then returns argument 2
+passes argument 2 to argument 1 and then returns argument 2
 Note: for side-effecting when you want to retain the reference
 
     F.tap (F.log) ('Hint: 3?') // 'Hint: 3?' // prints 'Hint: 3?'
@@ -363,6 +417,8 @@ Reverse function composes the argument
 ##### unit -> (? -> ?) list -> (? -> ?)
 Reverse function composes the argument, but with a temporary DSL
 
+note: F.ignore will be returned if there is only one function supplied
+
     var f = F.c () (
         F.tap (F.log)
         >> F['='] ('Hint: 3?')
@@ -372,7 +428,9 @@ Reverse function composes the argument, but with a temporary DSL
 
 ### F.p
 ##### ? -> (? -> ?) list -> ?
-Pipes (arg1) to the reverse function composed (arg2), but with a temporary DSL
+passes (arg1) to the reverse function composed (arg2), but with a temporary DSL
+
+note: F.ignore will be returned if there is only one function supplied
 
     F.p ('Hint: 3?') (
         F.tap (F.log)
@@ -383,6 +441,7 @@ Pipes (arg1) to the reverse function composed (arg2), but with a temporary DSL
 ### F.memoize
 ##### ('a -> 'b) -> ('a -> 'b)
 Returns a memoized version of the function
+
 The memoization has O(n) lookup
 
     var f = F.memoize (F.log)
@@ -469,7 +528,7 @@ Returns true if the list is empty, false otherwise
 ##### int -> 'a list -> 'a
 If (arg1) is greater than (arg2)'s length
 
-Then throws an F.e exception
+Then throws the exception F.e
 
 Else returns the element at index (arg1) in (arg2) otherwise
 
@@ -510,7 +569,7 @@ Returns a reverse of the list
 ##### (int -> 'a -> unit) -> 'a list -> unit
 For each element in (arg2)
 
-&nbsp;&nbsp;&nbsp;&nbsp;Pipe the respective index and element to (arg1)
+&nbsp;&nbsp;&nbsp;&nbsp;passe the respective index and element to (arg1)
 
     L.iteri (i => h => F.log (`${i}: ${h}`)) ([1, 2, 3]) // prints '0: 1' then '1: 2' then '2: 3'
 
@@ -518,7 +577,7 @@ For each element in (arg2)
 ##### ('a -> unit) -> 'a list -> unit
 For each element in (arg2)
 
-&nbsp;&nbsp;&nbsp;&nbsp;Pipe the element to (arg1)
+&nbsp;&nbsp;&nbsp;&nbsp;passe the element to (arg1)
 
     L.iter (F.log) ([1, 2, 3]) // prints '1' then '2' then '3'
 
@@ -526,7 +585,7 @@ For each element in (arg2)
 ##### ('a -> 'b -> 'a) -> 'a -> 'b list -> 'a
 (arg2) is the initial state of the accumulator
 
-(arg1) is iteratively piped the previous accumulator and the next element in (arg2)
+(arg1) is iteratively passed the previous accumulator and the next element in (arg2)
 
 Returns the final accumulator
 
@@ -535,11 +594,17 @@ Returns the final accumulator
 
 ### L.reduce
 ##### ('a -> 'a -> 'a) -> 'a list -> 'a
-The first element in (arg2) is the initial state of the accumulator
+If (arg2) is empty
 
-(arg1) is iteratively piped the previous accumulator and the next element in (arg2)
+Then throws the exception F.e
 
-Returns the final accumulator
+Else
+
+&nbsp;&nbsp;&nbsp;&nbsp;The first element in (arg2) is the initial state of the accumulator
+
+&nbsp;&nbsp;&nbsp;&nbsp;(arg1) is iteratively passed the previous accumulator and the next element in (arg2)
+
+&nbsp;&nbsp;&nbsp;&nbsp;Returns the final accumulator
 
     F.reduce (F['+']) ([1, 2, 3]) // 6
     F.reduce (F['-']) ([1, 2, 3]) // -4
@@ -548,7 +613,7 @@ Returns the final accumulator
 ##### ('a -> 'b -> 'a) -> 'a -> 'b list -> 'a list
 The first element in (arg2) is the initial state of the accumulator
 
-(arg1) is iteratively piped the previous accumulator and the next element in (arg2)
+(arg1) is iteratively passed the previous accumulator and the next element in (arg2)
 
 Returns the list of all accumulators
 
@@ -557,6 +622,23 @@ Returns the list of all accumulators
 
 ### L.mapi
 ##### (int -> 'a -> 'b) -> 'a list -> 'b list
-Returns a list that is (arg2) with each element transformed by piping the respective index and that element to (arg1)
+Returns a list that is (arg2) with each element transformed by passing the respective index and that element to (arg1)
 
-    F.mapi (i => h => 
+    F.mapi (F['+']) ([1, 2, 3]) // [1, 3, 5]
+
+### L.map
+##### ('a -> 'b) -> 'a list -> 'b list
+Returns a list that is (arg2) with each element transformed by passing that element to (arg1)
+
+    F.map (F['+'] (3)) ([1, 2, 3]) // [4, 5, 6]
+
+### L.find
+##### ('a -> bool) -> 'a list -> 'a
+If an element exists in (arg2) for which (arg1) returns true
+
+Then return the first element in (arg2) for which (arg1) returns true
+
+Else throws the exception F.e
+
+    L.find (F['='] (3)) ([1, 2, 3]) // 3
+    L.find (F['='] (9)) ([1, 2, 3]) // throws F.e exception
