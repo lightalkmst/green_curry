@@ -17,7 +17,7 @@ Here is an example:
     // string -> 'a
     // given a path, concatenates all of the files and evals the result
     var eval_dir = h => F.p (h) (
-        fs.readdirSync // get the list of file names in the directory
+        fs.readdirSync                     // get the list of file names in the directory
         >> L.map (F['+'] (h)) // append the path before each file name
         >> L.map (h => fs.readFileSync (h, 'utf8')) // transform each file path to its file contents
         >> L.fold (a => h => `${a};${h}`) ('') // concatenate all of the files, delimited by ';'
