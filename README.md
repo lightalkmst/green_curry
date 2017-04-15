@@ -1,6 +1,8 @@
 # green_curry: Curried functional programming library
 
-An understanding of the typed lambda calculus and JavaScript type system is recommended for effective use of this library. (Almost) all functions provided by this library are curried.
+An understanding of the typed lambda calculus is required for effective use of this library.
+(Almost) all functions provided by this library are curried.
+An understanding of the JavaScript type system is recommended for greater use of this library (my type signatures are not exact).
 
 The contents of this package are organized into submodules.
 
@@ -31,7 +33,7 @@ Constant exception object thrown by this library
 ##### 'a -> 'a
 The identity function
 
-    F.id ('3?') == 'Hint: 3?'
+    F.id ('Hint: 3?') == 'Hint: 3?'
 
 ### const
 ##### 'a -> unit -> 'a
@@ -114,35 +116,107 @@ Compares the arguments with hard inequality
     F['!=='] ('Hint: 3?') ('Hint: 3?') == false
     F['!=='] ('Hint: 3?') ('9') == true
 
+### !
+##### bool -> bool
+Negates the argument
 
-  '!': x => ! x,
-  '~': x => ! x,
+    F['!'] (true) == false
 
-  '+': x => y => x + y,
+### ~
+##### int -> int
+2's complements the argument
 
-  '-': x => y => x - y,
+    F['~'] (3) == -4
 
-  '*': x => y => x * y,
+### +
+##### int -> int
+Adds the arguments
 
-  '/': x => y => x / y,
+    F['+'] (3) (3) == 6
 
-  '%': x => y => x % y,
+### -
+##### int -> int
+Subtracts the arguments
 
-  '|': x => y => x | y,
+    F['-'] (3) (3) == 0
+    F['-'] (3) (0) == 3
 
-  '||': x => y => x || y,
+### *
+##### int -> int
+Multiplies the arguments
 
-  '&': x => y => x & y,
+    F['*'] (3) (3) == 9
 
-  '&&': x => y => x && y,
+### /
+##### int -> int
+Divides the arguments
 
-  '^': x => y => x ^ y,
+    F['/'] (3) (3) == 1
+    F['/'] (3) (1) == 3
 
-  '|>': x => f => f (x),
-  '@@': x => f => f (x),
+### %
+##### int -> int
+Modulo divides the arguments
 
-  '<|': f => x => f (x),
+    F['%'] (3) (3) == 0
+    F['%'] (3) (1) == 0
 
-  '>>': f => g => x => f (g (x)),
+### |
+##### int -> int
+Bitwise Or the arguments
 
-  '<<': f => g => x => g (f (x)),
+    F['|'] (3) (3) == 3
+
+### ||
+##### bool -> bool
+Logical Or the arguments
+Note: the arguments are evaluated eagerly so this cannot be used like the native operator for control flow
+
+    F['||'] (true) (true) == true
+
+### &
+##### int -> int
+Bitwise And the arguments
+
+    F['&'] (3) (3) == 3
+
+### &&
+##### bool -> bool
+Logical And the arguments
+Note: the arguments are evaluated eagerly so this cannot be used like the native operator for control flow
+
+    F['&&'] (true) (true) == true
+
+### ^
+##### int -> int
+Bitwise Xor the arguments
+
+    F['^'] (3) (3) == 0
+
+### |>
+### @@
+##### 'a -> ('a -> 'b) -> 'b
+Pipes the first argument to the second argument
+
+    F['|>'] (3) (F['+'] (3)) == 6
+
+### <|
+##### ('a -> 'b) -> 'a -> 'b
+Pipes the second argument to the first argument
+
+    F['<|'] (F['+'] (3)) (3) == 6
+
+### <<
+##### ('a -> 'b) -> ('c -> 'a) -> 'c -> 'a
+Function composes the arguments
+
+    var f = F['>>'] (F['+'] (3)) (F['*'] (3))
+    f (3) == 12
+
+### >>
+##### ('a -> 'b) -> ('c -> 'a) -> 'c -> 'a
+Reverse function composes the arguments
+
+    var f = F['>>'] (F['+'] (3)) (F['*'] (3))
+    f (3) == 18
+
