@@ -510,14 +510,14 @@ Returns a reverse of the list
 #### L.iteri : (int -> 'a -> unit) -> 'a list -> unit
 For each element in (arg2)
 
-&nbsp;&nbsp;&nbsp;&nbsp;passe the index and element to (arg1)
+&nbsp;&nbsp;&nbsp;&nbsp;Passes the index and element to (arg1)
 
     L.iteri (i => h => F.log (`${i}: ${h}`)) ([1, 2, 3]) // prints '0: 1' then '1: 2' then '2: 3'
 
 #### L.iter : ('a -> unit) -> 'a list -> unit
 For each element in (arg2)
 
-&nbsp;&nbsp;&nbsp;&nbsp;passe the element to (arg1)
+&nbsp;&nbsp;&nbsp;&nbsp;Passes the element to (arg1)
 
     L.iter (F.log) ([1, 2, 3]) // prints '1' then '2' then '3'
 
@@ -629,3 +629,34 @@ note: this function does not enforce density
 Returns (arg1) pre-pended to (arg2)
 
     L.append ([1, 2, 3]) ([4, 5, 6])
+
+#### L.uneq_length : 'a list -> 'b list -> bool
+Returns if (arg1) and (arg2) have unequal length
+
+    L.uneq_length ([1, 2, 3]) ([4, 5, 6]) // false
+    L.uneq_length ([1, 2, 3]) ([4, 5, 6, 7]) // true
+
+#### L.iteri2 : (int -> 'a -> 'b -> unit) -> 'a list -> 'b list -> unit
+If (arg2) and (arg3) have unequal lengths
+
+Then throws exception F.e
+
+Else for each element pair in (arg2) and (arg3)
+
+&nbsp;&nbsp;&nbsp;&nbsp;Passes the index and them to (arg1)
+
+    L.iteri2 (i => h1 => h2 => F.log (`${i}: ${h1}, ${h2}`) ([1, 2]) ([3, 4]) // prints '0: 1, 3' then '1: 2, 4'
+
+
+
+#### L.iteri2 : ('a -> 'b -> unit) -> 'a list -> 'b list -> unit
+If (arg2) and (arg3) have unequal lengths
+
+Then throws exception F.e
+
+Else for each element pair in (arg2) and (arg3)
+
+&nbsp;&nbsp;&nbsp;&nbsp;Passes them to (arg1)
+
+    L.iter2 (h1 => h2 => F.log (`${h1}, ${h2}`) ([1, 2]) ([3, 4]) // prints '1, 3' then '2, 4'
+
