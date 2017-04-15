@@ -1,4 +1,31 @@
 # green_curry: Curried functional programming library
+## Colorful and healthy!
+(ES6 required)
+
+This library is to provide support for functional programming. Though some other libraries exist that expose functional programming in JavaScript, they take a partially object-oriented approach that dilutes a lot of the value of a functional style. Though this mixture can be useful, those libraries have not closed the gap caused by some of JavaScript's idiosyncracies.
+
+I believe that what's held JavaScript back from being adopted as a functional programming language is its lack of a purely functional library. Functional programming's rewards are reaped best when currying is available, enabling point-free form to increase the abstractness and modularity of the code. One of the strengths of functional programming is that a vast majority of boilerplate is already replaced by higher-order library functions.
+
+Here is an example:
+
+    var fs = require ('fs')
+    var green_curry = require ('green_curry')
+    green_curry.globalize ()
+    
+    // string -> 'a
+    // given a path, concatenates all of the files and evals the result
+    var eval_dir = h => F.p (h) (
+      // get the list of file names in the directory
+      fs.readdirSync
+      // append the path before each file name
+      >> L.map (F['+'] (h))
+      // transform each file path to its file contents
+      >> L.map (h => fs.readFileSync (h, 'utf8'))
+      // concatenate all of the files, delimited by ';'
+      >> L.fold (a => h => `${a};${h}`) ('')
+      // evaluate the concatenated files
+      >> F.eval
+    )
 
 An understanding of the typed lambda calculus is required for effective use of this library
 
@@ -495,3 +522,41 @@ For each element in (arg2)
 
     L.iter (F.log) ([1, 2, 3]) // prints '1' then '2' then '3'
 
+### L.fold
+##### ('a -> 'b -> 'a) -> 'a -> 'b list -> 'a
+(arg2) is the initial state of the accumulator
+
+(arg1) is iteratively piped the previous accumulator and the next element in (arg2)
+
+Returns the final accumulator
+
+    F.fold (F['+']) (9) ([1, 2, 3]) // 15
+    F.fold (F['-']) (9) ([1, 2, 3]) // 3
+
+### L.reduce
+##### ('a -> 'a -> 'a) -> 'a list -> 'a
+The first element in (arg2) is the initial state of the accumulator
+
+(arg1) is iteratively piped the previous accumulator and the next element in (arg2)
+
+Returns the final accumulator
+
+    F.reduce (F['+']) ([1, 2, 3]) // 6
+    F.reduce (F['-']) ([1, 2, 3]) // -4
+
+### L.scan
+##### ('a -> 'b -> 'a) -> 'a -> 'b list -> 'a list
+The first element in (arg2) is the initial state of the accumulator
+
+(arg1) is iteratively piped the previous accumulator and the next element in (arg2)
+
+Returns the list of all accumulators
+
+    F.scan (F['+']) (9) ([1, 2, 3]) // [9, 10, 12, 15]
+    F.scan (F['-']) (9) ([1, 2, 3]) // [9, 8, 6, 3]
+
+### L.mapi
+##### (int -> 'a -> 'b) -> 'a list -> 'b list
+Returns a list that is (arg2) with each element transformed by piping the respective index and that element to (arg1)
+
+    F.mapi (i => h => 
