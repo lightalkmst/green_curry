@@ -641,22 +641,75 @@ If (arg2) and (arg3) have unequal lengths
 
 Then throws exception F.e
 
-Else for each element pair in (arg2) and (arg3)
+Else same as L.iteri, except additionally passing the element of (arg3)
 
-&nbsp;&nbsp;&nbsp;&nbsp;Passes the index and them to (arg1)
+    L.iteri2 (i => h1 => h2 => F.log (`${i}: ${h1}, ${h2}`)) ([1, 2]) ([3, 4]) // prints '0: 1, 3' then '1: 2, 4'
 
-    L.iteri2 (i => h1 => h2 => F.log (`${i}: ${h1}, ${h2}`) ([1, 2]) ([3, 4]) // prints '0: 1, 3' then '1: 2, 4'
-
-
-
-#### L.iteri2 : ('a -> 'b -> unit) -> 'a list -> 'b list -> unit
+#### L.iter2 : ('a -> 'b -> unit) -> 'a list -> 'b list -> unit
 If (arg2) and (arg3) have unequal lengths
 
 Then throws exception F.e
 
-Else for each element pair in (arg2) and (arg3)
+Else same as L.iter, except additionally passing the element of (arg3)
 
-&nbsp;&nbsp;&nbsp;&nbsp;Passes them to (arg1)
+    L.iter2 (h1 => h2 => F.log (`${h1}, ${h2}`)) ([1, 2]) ([3, 4]) // prints '1, 3' then '2, 4'
 
-    L.iter2 (h1 => h2 => F.log (`${h1}, ${h2}`) ([1, 2]) ([3, 4]) // prints '1, 3' then '2, 4'
+#### L.fold2 : ('a -> 'b -> 'c -> 'a) -> 'a -> 'b list -> 'c list -> 'a
+If (arg2) and (arg3) have unequal lengths
 
+Then throws exception F.e
+
+Else same as L.fold, except additionally passing the element of (arg3)
+
+    L.fold (a => h1 => h2 => a + h1 + h2) (1) ([1, 2]) ([3, 4]) // 11
+
+#### L.mapi2 : (int -> 'a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
+If (arg2) and (arg3) have unequal lengths
+
+Then throws exception F.e
+
+Else same as L.mapi, except additionally passing the element of (arg3)
+
+    L.mapi2 (i => h1 => h2 => i + h1 + h2) ([1, 2]) ([3, 4]) // [4, 7]
+
+#### L.map2 : ('a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
+If (arg2) and (arg3) have unequal lengths
+
+Then throws exception F.e
+
+Else same as L.map, except additionally passing the element of (arg3)
+
+    L.map2 (F['+']) ([1, 2]) ([3, 4]) // [4, 6]
+
+#### L.for_all2 : ('a -> 'b -> bool) -> 'a list -> 'b list -> bool
+If (arg2) and (arg3) have unequal lengths
+
+Then throws exception F.e
+
+Else same as L.for_all, except additionally passing the element of (arg3)
+
+    L.for_all2 (F['=']) ([3, 3]) ([3, 3]) // true
+    L.for_all2 (F['=']) ([1, 3]) ([3, 3]) // false
+    L.for_all2 (F['=']) ([]) ([]) // true
+
+#### L.exists2 : ('a -> 'b -> bool) -> 'a list -> 'b list -> bool
+If (arg2) and (arg3) have unequal lengths
+
+Then throws exception F.e
+
+Else same as L.exists, except additionally passing the element of (arg3)
+
+    L.exists2 (F['=']) ([3, 3]) ([3, 3]) // true
+    L.exists2 (F['=']) ([1, 3]) ([3, 3]) // true
+    L.exists2 (F['=']) ([]) ([]) // false
+
+#### L.zip : 'a list -> 'b list -> ('a * 'b) list
+If (arg2) and (arg3) have unequal lengths
+
+Then throws exception F.e
+
+Else returns the list with each element the list with the element of (arg1) first and the element of (arg2) second
+
+    L.zip ([1, 2]) ([3, 4]) // [[1, 3], [2, 4]]
+
+## D (dictionary functions)
