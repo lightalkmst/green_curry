@@ -17,11 +17,11 @@ Here is an example:
     // string -> 'a
     // given a path, concatenates all of the files and evals the result
     var eval_dir = h => F.p (h) (
-        fs.readdirSync                     // get the list of file names in the directory
-        >> L.map (F['+'] (h)) // append the path before each file name
-        >> L.map (h => fs.readFileSync (h, 'utf8')) // transform each file path to its file contents
-        >> L.fold (a => h => `${a};${h}`) ('') // concatenate all of the files, delimited by ';'
-        >> F.eval // evaluate the concatenated files
+        fs.readdirSync                                  // get the list of file names in the directory
+        >> L.map (F['+'] (h))                           // append the path before each file name
+        >> L.map (h => fs.readFileSync (h, 'utf8'))     // transform each file path to its file contents
+        >> L.fold (a => h => `${a};${h}`) ('')          // concatenate all of the files, delimited by ';'
+        >> F.eval                                       // evaluate the concatenated files
     )
 
 Here is another example that may well change the way you think:
@@ -32,15 +32,15 @@ Here is another example that may well change the way you think:
     var arr = L.range (1) (50)
     // inefficient, I know
     var is_prime = x => x > 2 && L.for_all (h => x % h != 0) (L.range (2) (x - 1))
-    // functions are data too! these all have the type (int -> bool)
     var pred = L.reduce (F.inter) ([
-        F['>'] (35), // is less 35
-        F['!='] (23), // is not 23
-        F['<'] (2), // is greater than 2
-        is_prime, // is prime
-        x => x % 7 != 1, // is not 1 more than a multiple of 7
-        x => `${x}`[0] != '1', // does not have a 1 in the first digit
-        x => 1085 % x != 0, // is not a clean divisor of 1085
+        // functions are data too! these all have the type (int -> bool)
+        F['>'] (35),               // is less 35
+        F['!='] (23),              // is not 23
+        F['<'] (2),                // is greater than 2
+        is_prime,                  // is prime
+        x => x % 7 != 1,           // is not 1 more than a multiple of 7
+        x => `${x}`[0] != '1',     // does not have a 1 in the first digit
+        x => 1085 % x != 0,        // is not a clean divisor of 1085
     ])
     L.filter (pred) (arr) // [3]
 
