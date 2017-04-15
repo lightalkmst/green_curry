@@ -873,3 +873,47 @@ Returns (arg1) without the pairs without the keys in (arg2)
         Not_a_Hint: 'You're already dead',
     }) (['Not_a_Hint']) // {Hint: '3?'}
 
+## S (string functions)
+#### S.length : string -> int
+Returns the length of (arg1)
+
+    S.length ('Hint: 3?') // 8
+
+#### S.get : int -> string -> string
+Returns the character at (arg1) in (arg2)
+
+    S.get (6) ('Hint: 3?') // 3
+
+#### S.substr : int -> int -> string -> string
+Returns the substring from (arg1) to (arg2) of (arg3) with some slice logic
+
+    S.substr (6) (7) ('Hint: 3?') // 3
+
+#### S.index : string -> string -> int
+Returns the first index at which (arg2) appears in (arg1)
+
+    S.index ('Hint: 3?') ('3') // 6
+
+#### S.contains : string -> string -> bool
+Returns if (arg2) appears in (arg1)
+
+    S.contains ('Hint: 3?') ('3') // true
+
+#### S.compare : string -> string -> int
+Follows normal comparator rules for strings
+
+    S.compare ('Hint: 3?') ('Not_a_Hint: You're already dead') // -1
+
+#### S.match : string -> regex -> string list
+If (arg1) is matched by (arg2)
+
+Then return a list of the match followed by captured groups
+
+Else return null
+
+    S.match ('Hint: 3?') (/(.)?$/) // ['3?', '3']
+
+#### S.replace : string -> regex -> string -> string
+Returns (arg1) with matches of (arg2) replaced by (arg3)
+
+    S.replace ('Hint: 3?') (/$/) ('
