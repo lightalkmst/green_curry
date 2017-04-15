@@ -16,7 +16,7 @@ var F = {
   // 'a -> unit
   ignore: _ => undefined,
 
-	// ('a -> 'b) -> unit
+	// (unit -> 'a) -> 'a
 	exec: f => f (),
 
   // bool -> unit
@@ -42,7 +42,8 @@ var F = {
   '!==': x => y => x !== y,
 
   '!': x => ! x,
-  '~': x => ! x,
+
+  '~': x => ~ x,
 
   '+': x => y => x + y,
 
@@ -64,14 +65,20 @@ var F = {
 
   '^': x => y => x ^ y,
 
+	'??': x => y => x !== undefined ? x : y,
+	'~??': x => y => y !== undefined ? y : x,
+
+	'?:': x => y => z => x ? y : z,
+	'~?:': x => y => z => z ? x : y,
+
   '|>': x => f => f (x),
   '@@': x => f => f (x),
 
   '<|': f => x => f (x),
 
-  '>>': f => g => x => f (g (x)),
+  '>>': f => g => x => g (f (x)),
 
-  '<<': f => g => x => g (f (x)),
+  '<<': f => g => x => f (g (x)),
 
   /////////////////
   //             //
@@ -83,16 +90,16 @@ var F = {
 	neg: f => (...x) => ! f (...x),
 
 	// (unit -> 'a) -> 'a
-  try: (p, ...fs) => {
+  try: p => fs => {
     var f = fs.shift ()
     try {
       return f ()
     }
     catch (e) {
       if (p) {
-        console.log (e)
+        F.log (e)
       }
-      return fs[0] ? F.try (p, ...fs) : undefined
+      return fs[0] ? F.try (p) (fs) : undefined
     }
   },
 
@@ -111,10 +118,12 @@ var F = {
   // use that and type it properly as
   // ('a -> 'b) -> ('b -> 'c) -> 'a -> 'c
   // but without an infix operator, it'd be verbose non-variadic
-  rcomp: (...fs) => F.swap (L.fold (F['|>'])) (fs),
+	// (? -> ?) list -> (? -> ?)
+  rcomp: fs => F.swap (L.fold (F['|>'])) (fs),
 
   // alternatively this operator overloading hack that i lifted from:
   // http://scott.sauyet.com/Javascript/Talk/Compose/2013-05-22/#slide-33
+	// unit -> (? -> ?) list -> (? -> ?)
   c: _ => {
     var fs = []
     var valueOf = Function.prototype.valueOf
@@ -124,11 +133,12 @@ var F = {
     }
     return _ => {
       Function.prototype.valueOf = valueOf
-			return F.rcomp (...fs)
+			return F.rcomp (fs)
     }
   },
 
   // adaptation of above that pipes a given argument through the composed function
+	// ? -> (? -> ?) list -> ?
   p: x => {
   	var fs = []
     var valueOf = Function.prototype.valueOf
@@ -138,32 +148,43 @@ var F = {
     }
     return _ => {
       Function.prototype.valueOf = valueOf
-			return F.rcomp (...fs) (x)
+			return F.rcomp (fs) (x)
     }
   },
 
   // ('a -> 'b) -> ('a -> 'b)
   memoize: f => {
-    var memo = {}
-    return x => memo[x] == undefined ? memo[x] = f (x) : memo[x]
+    var memo = []
+    return x => {
+			var len = memo.length
+			for (var i = 0; i < len; i++) {
+				if (memo[i][0] === x) {
+					return memo[i][1]
+				}
+			}
+			memo[len] = [x, f (x)]
+			return memo[len][1]
+		}
   },
 
   // int -> (unit -> unit) -> unit
   times: x => f => {for (var n = 0; n < x; n++) f ()},
 
-	//
-	after: n => f => (...args) => n != 1 ? (n--, undefined) : f (...args),
+	// int -> ('a -> 'b') -> ('a -> unit/'b)
+	after: n => f => (...args) => n > 1 ? (n--, undefined) : f (...args),
 
-	//
-	before: n => f => (...args) => n != 1 ? undefined : (n--, f (...args)),
+	// int -> ('a -> 'b') -> ('a -> unit/'b)
+	before: n => f => (...args) => n > 1 ? (n--, f (...args)) : undefined,
 
-	// 'a -> 'a
+	// 'a, 'b map -> 'a, 'b map
 	bind: o => {
+		var ans = {}
 		for (var k in o) {
 			typeof o[k] == 'function'
-			&& (o[k] = o[k].bind (o))
+			? (ans[k] = o[k].bind (ans))
+			: (ans[k] = o[k])
 		}
-		return o
+		return ans
 	}
 }
 
@@ -192,7 +213,7 @@ var L = {
 	is_empty: l => l.length == 0,
 
   // int -> 'a list -> 'a
-  nth: n => l => F.ex_if (n >= L.length (l)) || l[n],
+  get: n => l => F.ex_if (n >= L.length (l)) || l[n],
 
   // int -> int -> int list
   range: x => y => {
@@ -205,10 +226,7 @@ var L = {
   create: n => x => L.init (n) (F.const (x)),
 
   // int -> (int -> 'a) -> 'a list
-  init: n => f => L.map (f) (L.range (n)),
-
-  // 'a list -> 'a list
-  clone: l => l.concat (),
+  init: n => f => L.map (f) (L.range (0) (n - 1)),
 
   // 'a list -> 'a list
   rev: l => L.clone (l).reverse (),
@@ -345,29 +363,29 @@ var M = {
   //       //
   ///////////
 
-  // ('a, 'b) map -> bool
+  // 'a, 'b map -> bool
 	is_empty: m => m.keys ().length == 0,
 
 	// 'a -> ('a, 'b') map -> 'b
 	get: x => m => m [x],
 
-  // ('a * 'b) list -> ('a, 'b) map
+  // ('a * 'b) list -> 'a, 'b map
   create: l => {
   	var ans = {}
     L.iter (h => ans[h[0]] = h[1])
     return ans
   },
 
-  // ('a, 'b) map -> 'a list
+  // 'a, 'b map -> 'a list
   keys: m => Object.keys (m),
 
-  // ('a, 'b) map -> 'b list
+  // 'a, 'b map -> 'b list
   vals: m => L.map (F.swap (M.get) (m)) (M.keys (m)),
 
-  // ('a, 'b) map -> ('a * 'b) list
+  // 'a, 'b map -> ('a * 'b) list
   pairs: m => L.map (h => [h, m[h]]) (M.keys (m)),
 
-  // ('a -> 'b -> unit) -> ('a, 'b) map -> unit
+  // ('a -> 'b -> unit) -> 'a, 'b map -> unit
   iterk: f => m => L.iter (h => f (h) (m[h])) (M.keys (m)),
 
   // ('a -> unit) -> ('b, 'a) map -> unit
@@ -386,7 +404,7 @@ var M = {
     return ans
   },
 
-  // ('a -> 'b -> 'c) -> ('a, 'b) map -> ('a, 'c) map
+  // ('a -> 'b -> 'c) -> 'a, 'b map -> ('a, 'c) map
   mapk: f => m => {
   	var ans = {}
     M.iterk (k => v => ans[k] = f (k) (v)) (m)
@@ -426,13 +444,13 @@ var M = {
   // 'a -> ('b, 'a) map -> bool
   contains: x => m => L.contains (x) (M.vals (m)),
 
-  // ('a, 'b) map -> int
+  // 'a, 'b map -> int
   length: m => L.length (M.keys (m)),
 
   // ('a -> bool) -> ('b, 'a) map -> (('b, 'a) map * ('b, 'a) map)
   partition: f => m => [M.filter (f) (m), M.filter (h => ! f (h)) (m)],
 
-	// ('a, 'b) map -> ('a, 'b) map -> ('a, 'b) map
+	// 'a, 'b map -> 'a, 'b map -> 'a, 'b map
 	extend: m1 => m2 => {
 		var ans = {}
 		M.iterk (k => v => ans[k] = v) (m1)
@@ -440,7 +458,7 @@ var M = {
 		return ans
 	},
 
-	// ('a, 'b) map -> 'a list -> ('a, 'b) map
+	// 'a, 'b map -> 'a list -> 'a, 'b map
 	delete: m => l => {
 		var ans = {}
 		for (k in m) {

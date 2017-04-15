@@ -1,12 +1,28 @@
 {
   "name": "green_curry",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Curried functional programming library",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node main.js"
   },
-  "author": "rook_master2000@yahoo.com",
+  "contributors": [
+    "Omar Khan <rook_master2000@yahoo.com>"
+  ],
+  "homepage": "https://github.com/lightalkmst/green_curry.git",
+  "keywords": [
+    "curried",
+    "functional",
+    "library",
+    "green",
+    "curry",
+    "convenience",
+    "functions"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lightalkmst/green_curry.git"
+  },
   "license": "ISC"
 }
