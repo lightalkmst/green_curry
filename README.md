@@ -757,14 +757,14 @@ D.get ('c') ({c: 'Hint: 3?'}) // 'Hint: 3?'
 #### D.create : ('a * 'b) list -> 'a, 'b dictionary
 Returns the dictionary with pairs of each element with the first element as the key and the second element as the value
 ```javascript
-D.create ([['Hint', '3?'], ['Not_a_Hint', 'You're already dead']]) // {Hint: '3?', Not_a_Hint: 'You're already dead'}
+D.create ([['Hint', '3?'], ['Not_a_Hint', 'You\'re already dead']]) // {Hint: '3?', Not_a_Hint: 'You\'re already dead'}
 ```
 #### D.keys : 'a, 'b dictionary -> 'a list
 Returns a list of the keys of (arg1)
 ```javascript
 D.keys ({
-    Hint: '3?', 
-    Not_a_Hint: 'You're already dead',
+    Hint: '3?',
+    Not_a_Hint: 'You\'re already dead',
 }) // ['Hint', 'Not_a_Hint']
 ```
 #### D.vals : 'a, 'b dictionary -> 'b list
@@ -772,32 +772,32 @@ Returns a list of the values of (arg1)
 ```javascript
 D.keys ({
     Hint: '3?',
-    Not_a_Hint: 'You're already dead',
-}) // ['3?', 'You're already dead']
+    Not_a_Hint: 'You\'re already dead',
+}) // ['3?', 'You\'re already dead']
 ```
 #### D.pairs : 'a, 'b dictionary -> ('a * 'b) list
 Returns a list of the key, value pairs of (arg1)
 ```javascript
 D.keys ({
     Hint: '3?',
-    Not_a_Hint: 'You're already dead',
-}) // [['Hint', '3?'], ['Not_a_Hint', 'You're already dead']]
+    Not_a_Hint: 'You\'re already dead',
+}) // [['Hint', '3?'], ['Not_a_Hint', 'You\'re already dead']]
 ```
 #### D.iter : ('a -> unit) -> 'b, 'a dictionary -> unit
 Same as L.iteri on the values of (arg2), except with keys instead of indices
 ```javascript
 D.iter (F.log) ({
     Hint: '3?',
-    Not_a_Hint: 'You're already dead',
-}) // prints '3' then 'You're already dead'
+    Not_a_Hint: 'You\'re already dead',
+}) // prints '3' then 'You\'re already dead'
 ```
 #### D.iterk : ('a -> 'b -> unit) -> 'a, 'b dictionary -> unit
 Same as D.iter, except additionally passing the key
 ```javascript
 D.iterk (k => v => F.log (`${k}: ${v}') ({
     Hint: '3?',
-    Not_a_Hint: 'You're already dead',
-}) // prints 'Hint: 3?' then 'Not_a_Hint: You're already dead'
+    Not_a_Hint: 'You\'re already dead',
+}) // prints 'Hint: 3?' then 'Not_a_Hint: You\'re already dead'
 ```
 #### D.fold : ('a -> 'b -> 'a) -> 'a -> ('c, 'b) list -> 'a
 Same as L.fold on the values of (arg2)
@@ -831,7 +831,7 @@ Same as L.find on the values of (arg2)
 ```javascript
 D.find (F['='] ('3?')) ({
     Hint: '3?',
-    Not_a_Hint: 'You're already dead',
+    Not_a_Hint: 'You\'re already dead',
 }) // '3?'
 ```
 #### D.filter : ('a -> bool) -> 'a list -> 'a list
@@ -839,7 +839,7 @@ Same as L.filter on the values of (arg2)
 ```javascript
 D.filter (F['='] ('3?')) ({
     Hint: '3?',
-    Not_a_Hint: 'You're already dead',
+    Not_a_Hint: 'You\'re already dead',
 }) // {Hint: '3?'}
 ```
 #### D.filterk : ('a -> 'b -> bool) -> 'a list -> 'a list
@@ -847,7 +847,7 @@ Same as D.filter, except additionally passed the key
 ```javascript
 D.filterk (k => v => `${k}: ${v}` == 'Hint: 3?') ({
     Hint: '3?',
-    Not_a_Hint: 'You're already dead',
+    Not_a_Hint: 'You\'re already dead',
 }) // {Hint: '3?'}
 ```
 #### D.for_all : ('a -> bool) -> 'b, 'a dictionary -> bool
@@ -855,7 +855,7 @@ Same as L.for_all on the values of (arg2)
 ```javascript
 D.for_all (F['='] ('3?')) ({
     Hint: '3?',
-    Not_a_Hint: 'You're already dead',
+    Not_a_Hint: 'You\'re already dead',
 }) // false
 ```
 #### D.exists : ('a -> bool) -> 'b, 'a dictionary -> bool
@@ -863,7 +863,7 @@ Same as L.exists on the values of (arg2)
 ```javascript
 D.exists (F['='] ('3?')) ({
     Hint: '3?',
-    Not_a_Hint: 'You're already dead',
+    Not_a_Hint: 'You\'re already dead',
 }) // true
 ```
 #### D.contains : 'a -> 'b, 'a dictionary -> bool
@@ -871,7 +871,7 @@ Same as L.contains on the values of (arg2)
 ```javascript
 D.exists ('3?') ({
     Hint: '3?',
-    Not_a_Hint: 'You're already dead',
+    Not_a_Hint: 'You\'re already dead',
 }) // true
 ```
 #### D.length : 'a, 'b dictionary -> int
@@ -879,7 +879,7 @@ Returns the number of pairs in (arg1)
 ```javascript
 D.length ({
     Hint: '3?',
-    Not_a_Hint: 'You're already dead',
+    Not_a_Hint: 'You\'re already dead',
 }) // 2
 ```
 #### D.partition : ('a -> bool) -> 'b, 'a dictionary -> (('b, 'a) dictionary * ('b, 'a) dictionary)
@@ -887,8 +887,8 @@ Same as L.partition on the values of (arg2)
 ```javascript
 D.partition (F['='] ('3?')) ({
     Hint: '3?',
-    Not_a_Hint: 'You're already dead',
-}) // [{Hint: '3?'}, {Not_a_Hint: 'You're already dead'}]
+    Not_a_Hint: 'You\'re already dead',
+}) // [{Hint: '3?'}, {Not_a_Hint: 'You\'re already dead'}]
 ```
 #### D.extend : 'a, 'b dictionary -> 'a, 'b dictionary -> 'a, 'b dictionary
 Returns (arg1) overlaid by (arg2)
@@ -897,16 +897,16 @@ D.extend ({
     Hint: '3?',
     a: '3',
 }) ({
-    Not_a_Hint: 'You're already dead',
+    Not_a_Hint: 'You\'re already dead',
     a: '4',
-}) // {Hint: '3?', Not_a_Hint: 'You're already dead', a: '4'}
+}) // {Hint: '3?', Not_a_Hint: 'You\'re already dead', a: '4'}
 ```
 #### D.delete : 'a, 'b dictionary -> 'a list -> 'a, 'b dictionary
 Returns (arg1) without the pairs without the keys in (arg2)
 ```javascript
 D.delete ({
     Hint: '3?',
-    Not_a_Hint: 'You're already dead',
+    Not_a_Hint: 'You\'re already dead',
 }) (['Not_a_Hint']) // {Hint: '3?'}
 ```
 ## S (string functions)
@@ -928,7 +928,7 @@ S.substr (6) (7) ('Hint: 3?') // 3
 #### S.index : string -> string -> int
 Returns the first index at which (arg2) appears in (arg1)
 ```javascript
-S.index ('Not_a_Hint: You're already dead') ('a') // 4
+S.index ('Not_a_Hint: You\'re already dead') ('a') // 4
 ```
 #### S.contains : string -> string -> bool
 Returns if (arg2) appears in (arg1)
@@ -938,7 +938,7 @@ S.contains ('Hint: 3?') ('3') // true
 #### S.compare : string -> string -> int
 Follows normal comparator rules for strings
 ```javascript
-S.compare ('Hint: 3?') ('Not_a_Hint: You're already dead') // -1
+S.compare ('Hint: 3?') ('Not_a_Hint: You\'re already dead') // -1
 ```
 #### S.match : string -> regex -> string list
 If (arg1) is matched by (arg2)
@@ -957,12 +957,12 @@ S.replace ('Hint: 3?') (/$/) ('
 #### S.rindex : string -> string -> int
 Same as S.index, except with the last occurance
 ```javascript
-S.rindex ('Not_a_Hint: You're already dead') ('3') // 29
+S.rindex ('Not_a_Hint: You\'re already dead') ('3') // 29
 ```
 #### S.search : string -> regex -> int
 Returns the first index that (arg2) matches in (arg1)
 ```javascript
-S.search ('Not_a_Hint: You're already dead') (/^/) // 0
+S.search ('Not_a_Hint: You\'re already dead') (/^/) // 0
 ```
 #### S.split : string -> regex -> string list
 Returns a list of the substrings of (arg1) split by (arg2)
