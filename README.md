@@ -74,6 +74,7 @@ F.log ('Hint: 3?') // prints 'Hint: 3?'
 ```
 ## F (general functions and constants)
 note: regard the operators as prefix notation
+
 #### F.e : obj
 Constant exception object thrown by this library
 
@@ -480,8 +481,11 @@ n.f () // 3
 ```
 ## L (1 list and 2 lists functions)
 note: lists are assumed to be dense, meaning all data is contiguous.
+
 note: all respective orders are preserved, except in obvious cases
+
 ### 1 list functions
+
 #### L.cons : 'a -> 'a list -> 'a list
 Appends (arg1) to the front of (arg2)
 ```javascript
