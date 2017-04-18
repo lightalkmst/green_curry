@@ -34,26 +34,7 @@ var eval_dir = h => F.p (h) (
     >> F.eval                                       // evaluate the concatenated files
 )
 ```
-Here is another example that may well change the way you think:
-```javascript
-var green_curry = require ('green_curry')
-green_curry.globalize ()
 
-var arr = L.range (1) (50)
-// inefficient, I know
-var is_prime = x => x > 2 && L.for_all (h => x % h != 0) (L.range (2) (x - 1))
-var pred = L.reduce (F.inter) ([
-    // functions are data too! these all have the type (int -> bool)
-    F['>'] (35),               // is less 35
-    F['!='] (23),              // is not 23
-    F['<'] (2),                // is greater than 2
-    is_prime,                  // is prime
-    x => x % 7 != 1,           // is not 1 more than a multiple of 7
-    x => `${x}`[0] != '1',     // does not have a 1 in the first digit
-    x => 1085 % x != 0,        // is not a clean divisor of 1085
-])
-L.filter (pred) (arr) // [3]
-```
 An understanding of the typed lambda calculus is required for effective use of this library as all functions provided by this library are curried (all functions are free of self-references, allowing their safe use as first-class functions).
 
 An understanding of the JavaScript type system is recommended for greater use of this library (my type signatures are not strict; following/enforcing a type system by using the appropriate functions keeps code clear, but careful use of type coercion has its rewards)
@@ -65,7 +46,7 @@ Pulls the included submodules into global scope to obviate the need for fully-qu
 
 All examples on this page will assume this has already been called
 
-note: works both in-server and in-browser
+(note: works both in-server and in-browser)
 ```javascript
 var green_curry = require ('green_curry')
 green_curry.F.log ('Hint: 3?') // prints 'Hint: 3?'
@@ -73,7 +54,7 @@ green_curry.globalize () // raises green_curry library to global scope
 F.log ('Hint: 3?') // prints 'Hint: 3?'
 ```
 ## F (general functions and constants)
-note: regard the operators as prefix notation
+(note: regard the operators as prefix notation)
 
 #### F.e : obj
 Constant exception object thrown by this library
@@ -278,22 +259,10 @@ Then return (arg1)
 
 Else return (arg2)
 
-note: the arguments are evaluated eagerly so this does not short-circuit
+(note: the arguments are evaluated eagerly so this does not short-circuit)
 ```javascript
 F['??'] (9) (3) // 9
 F['??'] (undefined) (3) // 3
-```
-#### F.~?? : 'a -> 'a -> 'a
-If (arg2) is defined
-
-Then return (arg2)
-
-Else return (arg1)
-
-Note: the arguments are evaluated eagerly so this does not short-circuit
-```javascript
-F['~??'] (3) (9) // 9
-F['~??'] (3) (undefined) // 3
 ```
 #### F.?: : bool -> 'a -> 'a -> 'a
 (note: the arguments are evaluated eagerly so this does not short-circuit)
@@ -301,20 +270,14 @@ F['~??'] (3) (undefined) // 3
 F['?:'] (true) (3) (9) // 3
 F['?:'] (false) (3) (9) // 9
 ```
-#### F.~?: : 'a -> 'a -> bool -> 'a
-(note: the arguments are evaluated eagerly so this does not short-circuit)
-```javascript
-F['~?:'] (3) (9) (true) // 3
-F['~?:'] (3) (9) (false) // 9
-```
 #### F.|> : 'a -> ('a -> 'b) -> 'b
 #### F.@@ : 'a -> ('a -> 'b) -> 'b
-passes (arg1) into (arg2)
+Passes (arg1) into (arg2)
 ```javascript
 F['|>'] (3) (F['+'] (3)) // 6
 ```
 #### F.<| : ('a -> 'b) -> 'a -> 'b
-passes (arg2) into (arg1)
+Passes (arg2) into (arg1)
 ```javascript
 F['<|'] (F['+'] (3)) (3) // 6
 ```
@@ -358,7 +321,9 @@ f (10) // true
 Invokes the first function in (arg2)
 
 If the function throws an exception
+
 Then
+
 &nbsp;&nbsp;&nbsp;&nbsp;If (arg1) is true
 
 &nbsp;&nbsp;&nbsp;&nbsp;Then the exception is printed to console
@@ -386,8 +351,8 @@ Calls the given function after waiting the given time in ms
 F.delay (3) (() => F.log ('Hint: 3?')) // waits 3ms and then prints 'Hint: 3?'
 ```
 #### F.tap : ('a -> 'b) -> 'a -> 'a
-passes argument 2 to argument 1 and then returns argument 2
-Note: for side-effecting when you want to retain the reference
+Passes argument 2 to argument 1 and then returns argument 2
+(note: for side-effecting when you want to retain the reference)
 ```javascript
 F.tap (F.log) ('Hint: 3?') // 'Hint: 3?' // prints 'Hint: 3?'
 ```
@@ -404,9 +369,9 @@ f ('Hint: 3?') // true // prints 'Hint: 3?' then 'true'
 #### F.c : unit -> (? -> ?) list -> (? -> ?)
 Reverse function composes the argument, but with a temporary DSL that is applied only one level deep
 
-note: F.ignore will be returned if there is only one function supplied
+(note: requires at least two functions to be composed to work properly)
 
-note: this is safe for nested usage in other instances of F.c and F.p
+(note: this is safe for nested usage in other instances of F.c and F.p)
 ```javascript
 var f = F.c () (
     F.tap (F.log)
@@ -418,9 +383,9 @@ f ('Hint: 3?') // true // prints 'Hint: 3?' then 'true'
 #### F.p : ? -> (? -> ?) list -> ?
 Passes (arg1) to the reverse function composed (arg2), but with a temporary DSL that is applied only one level deep
 
-note: F.ignore will be returned if there is only one function supplied
+(note: requires at least two functions to be composed to work properly)
 
-note: this is safe for nested usage in other instances of F.c and F.p
+(note: this is safe for nested usage in other instances of F.c and F.p)
 ```javascript
 F.p ('Hint: 3?') (
     F.tap (F.log)
@@ -461,7 +426,7 @@ f ('Hint: 3?') // undefined // does nothing
 #### F.bind : 'a, 'b map -> 'a, 'b map
 Binds the self-references for functions in the map to the map and returns the map
 
-note: this one of the gaps I mentioned in the opening; in languages that automatically resolve this problem, it's not an issue
+(note: this one of the gaps I mentioned in the opening; in languages that automatically resolve this problem, it's not an issue)
 ```javascript
 var m = {
     f: function () {return this.a},
@@ -480,9 +445,9 @@ var n = {
 n.f () // 3
 ```
 ## L (1 list and 2 lists functions)
-note: lists are assumed to be dense, meaning all data is contiguous.
+(note: lists are assumed to be dense, meaning all data is contiguous)
 
-note: all respective orders are preserved, except in obvious cases
+(note: all respective orders are preserved, except in obvious cases)
 
 ### 1 list functions
 
@@ -653,7 +618,7 @@ L.uniq ([1, 2, 3, 3, 3, 4, 5]) // [1, 2, 3, 4, 5]
 #### L.unzip : ('a * 'b) list -> 'a list * 'b list
 Returns the list of the first element of each element of the list and the list of the second element of each element of the list
 
-note: this function does not enforce density
+(note: this function does not enforce density)
 ```javascript
 L.unzip ([[1, 2], [3, 4], [5, 6]]) // [[1, 3, 5], [2, 4, 6]]
 ```
@@ -797,7 +762,7 @@ D.iter (F.log) ({
 #### D.iterk : ('a -> 'b -> unit) -> 'a, 'b dictionary -> unit
 Same as D.iter, except additionally passing the key
 ```javascript
-D.iterk (k => v => F.log (`${k}: ${v}`) ({
+D.iterk (k => v => F.log (`${k}: ${v}`)) ({
     Hint: '3?',
     Not_a_Hint: 'You\'re already dead',
 }) // prints 'Hint: 3?' then 'Not_a_Hint: You\'re already dead'
@@ -823,7 +788,7 @@ D.map (F['+'] (3)) ({
 #### D.mapk : ('a -> 'b -> 'c) -> 'a, 'b dictionary -> 'a, 'c dictionary
 Same as D.map, except additionally passing the key
 ```javascript
-D.mapk (k => v => `${k}: ${v}') ({
+D.mapk (k => v => `${k}: ${v}`) ({
     a: 1,
     b: 2,
     c: 3,
@@ -955,7 +920,7 @@ S.match ('Hint: 3?') (/(.)?$/) // ['3?', '3']
 #### S.replace : string -> regex -> string -> string
 Returns (arg1) with matches of (arg2) replaced by (arg3)
 ```javascript
-S.replace ('Hint: 3?') (/$/) ('
+S.replace ('Hint: 3?') (/(\d)\?$/) ('3') ('4') // 'Hint: 4'
 ```
 #### S.rindex : string -> string -> int
 Same as S.index, except with the last occurance

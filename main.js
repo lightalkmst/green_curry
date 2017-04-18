@@ -77,10 +77,8 @@ var F = {
   '<<<': x => y => x << y,
 
   '??': x => y => x !== undefined ? x : y,
-  '~??': x => y => y !== undefined ? y : x,
 
   '?:': x => y => z => x ? y : z,
-  '~?:': x => y => z => z ? x : y,
 
   '|>': x => f => f (x),
   '@@': x => f => f (x),
