@@ -122,7 +122,7 @@ var F = {
   swap: f => x => y => f (y) (x),
 
   // int -> ('a -> 'b) -> unit
-  delay: t => f => setTimeout (t, f),
+  delay: t => f => setTimeout (f, t),
 
   // ('a -> 'b) -> 'a -> 'a
   tap: f => x => (f (x), x),
