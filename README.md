@@ -480,7 +480,7 @@ L.is_empty ([1, 2, 3]) // false
 #### L.get : int -> 'a list -> 'a
 If (arg1) is greater than (arg2)'s length
 
-Then throws the exception F.e
+Then returns undefined
 
 Else returns the element at index (arg1) in (arg2) otherwise
 ```javascript
@@ -570,10 +570,10 @@ If an element exists in (arg2) for which (arg1) returns true
 
 Then return that element
 
-Else throws the exception F.e
+Else return undefined
 ```javascript
 L.find (F['='] (3)) ([1, 2, 3]) // 3
-L.find (F['='] (9)) ([1, 2, 3]) // throws F.e exception
+L.find (F['='] (9)) ([1, 2, 3]) // undefined
 ```
 #### L.filter : ('a -> bool) -> 'a list -> 'a list
 Returns (arg2) without the elements for which (arg1) returns false
@@ -894,48 +894,48 @@ Returns the substring from (arg1) to (arg2) of (arg3) with some slice logic
 S.substr (6) (7) ('Hint: 3?') // 3
 ```
 #### S.index : string -> string -> int
-Returns the first index at which (arg2) appears in (arg1)
+Returns the first index at which (arg1) appears in (arg2)
 ```javascript
-S.index ('Not_a_Hint: You\'re already dead') ('a') // 4
+S.index ('a') ('Not_a_Hint: You\'re already dead') // 4
 ```
 #### S.contains : string -> string -> bool
-Returns if (arg2) appears in (arg1)
+Returns if (arg1) appears in (arg2)
 ```javascript
-S.contains ('Hint: 3?') ('3') // true
+S.contains ('3') ('Hint: 3?') // true
 ```
 #### S.compare : string -> string -> int
-Follows normal comparator rules for strings
+Follows normal comparator rules for strings for comparing (arg1) to (arg2)
 ```javascript
 S.compare ('Hint: 3?') ('Not_a_Hint: You\'re already dead') // -1
 ```
-#### S.match : string -> regex -> string list
-If (arg1) is matched by (arg2)
+#### S.match : regex -> string -> string list
+If (arg2) is matched by (arg1)
 
 Then return a list of the match followed by captured groups
 
 Else return null
 ```javascript
-S.match ('Hint: 3?') (/(.)?$/) // ['3?', '3']
+S.match (/(.)?$/) ('Hint: 3?') // ['3?', '3']
 ```
-#### S.replace : string -> regex -> string -> string
-Returns (arg1) with matches of (arg2) replaced by (arg3)
+#### S.replace : regex -> string -> string -> string
+Returns (arg3) with matches of (arg1) replaced by (arg2)
 ```javascript
-S.replace ('Hint: 3?') (/(\d)\?$/) ('3') ('4') // 'Hint: 4'
+S.replace (/(\d)\?$/) ('4')  ('Hint: 3?') // 'Hint: 4'
 ```
 #### S.rindex : string -> string -> int
 Same as S.index, except with the last occurance
 ```javascript
-S.rindex ('Not_a_Hint: You\'re already dead') ('3') // 29
+S.rindex ('3') ('Not_a_Hint: You\'re already dead') // 29
 ```
-#### S.search : string -> regex -> int
-Returns the first index that (arg2) matches in (arg1)
+#### S.search : regex -> string -> int
+Returns the first index that (arg1) matches in (arg2)
 ```javascript
-S.search ('Not_a_Hint: You\'re already dead') (/^/) // 0
+S.search (/^/) ('Not_a_Hint: You\'re already dead') // 0
 ```
-#### S.split : string -> regex -> string list
-Returns a list of the substrings of (arg1) split by (arg2)
+#### S.split : regex -> string -> string list
+Returns a list of the substrings of (arg2) split by (arg1)
 ```javascript
-S.split ('Hint: 3?') (/:/) // ['Hint', ' 3?']
+S.split (/:/) ('Hint: 3?') // ['Hint', ' 3?']
 ```
 #### S.lower : string -> string
 Returns (arg1) with all characters lowercase
