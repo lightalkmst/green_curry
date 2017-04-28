@@ -570,10 +570,10 @@ If an element exists in (arg2) for which (arg1) returns true
 
 Then return that element
 
-Else throws the exception F.e
+Else return undefined
 ```javascript
 L.find (F['='] (3)) ([1, 2, 3]) // 3
-L.find (F['='] (9)) ([1, 2, 3]) // throws F.e exception
+L.find (F['='] (9)) ([1, 2, 3]) // undefined
 ```
 #### L.filter : ('a -> bool) -> 'a list -> 'a list
 Returns (arg2) without the elements for which (arg1) returns false
