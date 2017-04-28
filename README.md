@@ -480,7 +480,7 @@ L.is_empty ([1, 2, 3]) // false
 #### L.get : int -> 'a list -> 'a
 If (arg1) is greater than (arg2)'s length
 
-Then throws the exception F.e
+Then returns undefined
 
 Else returns the element at index (arg1) in (arg2) otherwise
 ```javascript
