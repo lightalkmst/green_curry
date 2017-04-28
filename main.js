@@ -281,7 +281,7 @@ var L = {
   map: f => L.mapi (F.const (f)),
 
   // ('a -> bool) -> 'a list -> 'a
-  find: f => l => F.ex_if (! L.contains (f) (l)) || l.find (f),
+  find: f => l => l.find (f),
 
   // ('a -> bool) -> 'a list -> 'a list
   filter: f => l => l.filter (f),
@@ -475,13 +475,13 @@ var S = {
   get: n => s => s[n],
 
   // int -> int -> string -> string
-  substr: s => x => y => s.substring (x, y > -1 ? y : y + 1 + S.length (s)),
+  substr: s => x => y => s.slice (x, y),
 
   // string -> string -> int
-  index: s1 => s2 => s1.indexOf (s2),
+  index: s1 => s2 => s2.indexOf (s1),
 
   // string -> string -> bool
-  contains: s1 => s2 => s1.includes (s2),
+  contains: s1 => s2 => s2.includes (s1),
 
   // string -> string -> int
   compare: s1 => s2 => s1.localeCompare (s2),
@@ -489,17 +489,17 @@ var S = {
   // string -> regex -> string list
   match: r => s => s.match (r),
 
-  // string -> regex -> string -> string
-  replace: s1 => r => s2 => s1.replace (r, s2),
+  // regex -> string -> string -> string
+  replace: r => s1 => s2 => s2.replace (r, s1),
 
   // string -> string -> int
-  rindex: s1 => s2 => s1.lastIndexOf (s2),
+  rindex: s1 => s2 => s2.lastIndexOf (s1),
 
-  // string -> regex -> int
-  search: s => r => s.search (r),
+  // regex -> string -> int
+  search: r => s => s.search (r),
 
-  // string -> regex -> string list
-  split: s => r => s.split (r),
+  // regex -> string -> string list
+  split: r => s => s.split (r),
 
   // string -> string
   lower: s => s.toLocaleLowerCase (),
@@ -511,21 +511,22 @@ var S = {
   trim: s => s.trim (),
 }
 
-module.exports = {
+var library = {
   F: F,
   L: L,
   D: D,
   S: S,
-  globalize: function () {
-    for (var k in this) {
-      if (k != 'globalize') {
-        if (typeof window != 'undefined') {
-          window[k] = this[k]
-        }
-        else if (typeof global != 'undefined') {
-          global[k] = this[k]
-        }
-      }
-    }
-  }
 }
+
+var globalize = () => {
+  D.iterk (k => v => {
+    if (typeof window != 'undefined') {
+      window[k] = v
+    }
+    else if (typeof global != 'undefined') {
+      global[k] = v
+    }
+  }) (library)
+}
+
+module.exports = D.extend (library) ({globalize: globalize})
