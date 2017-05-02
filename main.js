@@ -228,12 +228,13 @@ var L = {
   is_empty: l => l.length == 0,
 
   // int -> 'a list -> 'a
-  get: n => l => F.ex_if (n >= L.length (l)) || l[n],
+  get: n => l => l[n],
 
   // int -> int -> int list
   range: x => y => {
+    var l = 0
     var ans = []
-    for (var n = x; n <= y; n++) ans.push (n)
+    for (var n = 0; n <= y - x; n++) ans[l++] = n + x
     return ans
   },
 
@@ -475,7 +476,7 @@ var S = {
   get: n => s => s[n],
 
   // int -> int -> string -> string
-  substr: s => x => y => s.slice (x, y),
+  substr: x => y => s => s.substring (x, y < 0 ? s.length - y + 1 : y),
 
   // string -> string -> int
   index: s1 => s2 => s2.indexOf (s1),
