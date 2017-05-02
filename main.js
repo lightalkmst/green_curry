@@ -388,7 +388,7 @@ var D = {
   // ('a * 'b) list -> 'a, 'b dictionary
   create: l => {
     var ans = {}
-    L.iter (h => ans[h[0]] = h[1])
+    L.iter (h => ans[h[0]] = h[1]) (l)
     return ans
   },
 
