@@ -190,17 +190,6 @@ var F = {
 
   // int -> ('a -> 'b') -> ('a -> unit/'b)
   before: n => f => (...args) => n > 1 ? (n--, f (...args)) : undefined,
-
-  // 'a, 'b dictionary -> 'a, 'b dictionary
-  bind: o => {
-    var ans = {}
-    for (var k in o) {
-      typeof o[k] == 'function'
-      ? (ans[k] = o[k].bind (ans))
-      : (ans[k] = o[k])
-    }
-    return ans
-  }
 }
 
 var L = {
@@ -401,6 +390,20 @@ var D = {
   // 'a, 'b dictionary -> ('a * 'b) list
   pairs: d => L.map (h => [h, d[h]]) (D.keys (d)),
 
+  // 'a, 'b dictionary -> 'a, 'b dictionary
+  bind: o => {
+    var ans = {}
+    for (var k in o) {
+      typeof o[k] == 'function'
+      ? (ans[k] = o[k].bind (ans))
+      : (ans[k] = o[k])
+    }
+    return ans
+  },
+
+  // 'a, 'b dictionary -> 'a, 'b dictionary
+  freeze: F.tap (d => d.freeze ()),
+
   // ('a -> 'b -> unit) -> 'a, 'b dictionary -> unit
   iterk: f => d => L.iter (h => f (h) (d[h])) (D.keys (d)),
 
@@ -431,7 +434,7 @@ var D = {
   },
 
   // ('a -> bool) -> 'a list -> 'a list
-  filter: f => d => D.filterk (F.const (f)),
+  filter: f => D.filterk (F.const (f)),
 
   // ('a -> bool) -> 'b, 'a dictionary -> bool
   for_all: f => d => L.forall (f) (D.vals (d)),
