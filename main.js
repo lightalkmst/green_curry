@@ -402,7 +402,10 @@ var D = {
   },
 
   // 'a, 'b dictionary -> 'a, 'b dictionary
-  freeze: F.tap (d => d.freeze ()),
+  freeze: d => (d.freeze (), d),
+
+  // 'a, 'b dictionary -> 'a, 'b dictionary
+  freeze_bind: d => D.freeze (D.bind (d)),
 
   // ('a -> 'b -> unit) -> 'a, 'b dictionary -> unit
   iterk: f => d => L.iter (h => f (h) (d[h])) (D.keys (d)),
