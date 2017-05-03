@@ -418,7 +418,7 @@ var D = {
   },
 
   // ('a -> 'b) -> 'c, 'a dictionary -> 'c, 'b dictionary
-  map: f => d => D.mapk (F.const (f)),
+  map: f => D.mapk (F.const (f)),
 
   // ('a -> bool) -> 'b, 'a dictionary -> 'a
   find: f => d => F.ex_if (! L.contains (f) (D.vals (d))) || L.find (f) (D.vals (d)),
