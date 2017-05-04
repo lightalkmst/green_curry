@@ -273,6 +273,9 @@ var L = {
   // ('a -> bool) -> 'a list -> 'a
   find: f => l => l.find (f),
 
+  // ('a -> unit/'b) -> 'a list -> unit/'b
+  pick: f => l => f (L.find (x => f (x) !== undefined) (l)),
+
   // ('a -> bool) -> 'a list -> 'a list
   filter: f => l => l.filter (f),
 

@@ -554,6 +554,16 @@ Else return undefined
 L.find (F['='] (3)) ([1, 2, 3]) // 3
 L.find (F['='] (9)) ([1, 2, 3]) // undefined
 ```
+#### L.pick : ('a -> unit/'b) -> 'a list -> unit/'b
+If an element exists in (arg2) for which (arg1) does not return undefined
+
+Then return that element passed to (arg1)
+
+Else return undefined
+```javascript
+L.pick (h => h % 3 != 0 ? undefined : h + 3) ([1, 2, 3]) // 6
+L.pick (h => h % 3 != 0 ? undefined : h + 3) ([1, 2]) // undefined
+```
 #### L.filter : ('a -> bool) -> 'a list -> 'a list
 Returns (arg2) without the elements for which (arg1) returns false
 ```javascript
