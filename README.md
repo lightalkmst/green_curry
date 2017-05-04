@@ -423,27 +423,6 @@ f ('Hint: 3?') // 'Hint: 3?' // prints 'Hint: 3?'
 f ('Hint: 3?') // 'Hint: 3?' // prints 'Hint: 3?'
 f ('Hint: 3?') // undefined // does nothing
 ```
-#### F.bind : 'a, 'b map -> 'a, 'b map
-Binds the self-references for functions in the map to the map and returns the map
-
-(note: this one of the gaps I mentioned in the opening; in languages that automatically resolve this problem, it's not an issue)
-```javascript
-var m = {
-    f: function () {return this.a},
-    a: 3,
-}
-m.f () // 3
-var f = m.f
-f () // undefined
-m = F.bind (m)
-var f = m.f
-f () // 3
-var n = {
-    f: m.f,
-    a: 9,
-}
-n.f () // 3
-```
 ## L (1 list and 2 lists functions)
 (note: lists are assumed to be dense, meaning all data is contiguous)
 
@@ -751,6 +730,39 @@ D.keys ({
     Not_a_Hint: 'You\'re already dead',
 }) // [['Hint', '3?'], ['Not_a_Hint', 'You\'re already dead']]
 ```
+#### D.bind : 'a, 'b dictionary -> 'a, 'b dictionary
+Binds the self-references for functions in the map to the dictionary and returns the dictionary
+
+(note: this one of the gaps I mentioned in the opening; in languages that automatically resolve this problem, it's not an issue)
+```javascript
+var d = {
+    f: function () {return this.a},
+    a: 3,
+}
+d.f () // 3
+var f = d.f
+f () // undefined
+m = D.bind (d)
+var f = d.f
+f () // 3
+var n = {
+    f: d.f,
+    a: 9,
+}
+d.f () // 3
+```
+#### D.freeze : 'a, 'b dictionary -> 'a, 'b dictionary
+Freezes the dictionary and returns the dictionary
+```javascript
+var d = D.freeze ({
+    a: 1,
+})
+d.a = 2
+F.log (d.a) // prints 1
+```
+#### D.freeze_bind : 'a, 'b dictionary -> 'a, 'b dictionary
+Same as calling D.bind and then D.freeze on the dictionary
+
 #### D.iter : ('a -> unit) -> 'b, 'a dictionary -> unit
 Same as L.iteri on the values of (arg2), except with keys instead of indices
 ```javascript
