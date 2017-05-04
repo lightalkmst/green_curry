@@ -405,7 +405,7 @@ var D = {
   },
 
   // 'a, 'b dictionary -> 'a, 'b dictionary
-  freeze: d => (d.freeze (), d),
+  freeze: d => (Object.freeze (d), d),
 
   // 'a, 'b dictionary -> 'a, 'b dictionary
   freeze_bind: d => D.freeze (D.bind (d)),
