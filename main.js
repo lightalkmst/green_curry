@@ -295,6 +295,9 @@ var L = {
   partition: f => l => [L.filter (f) (l), L.filter (F.neg (f)) (l)],
 
   // 'a list -> 'a list
+  clone: l => L.map (F.id) (l),
+
+  // 'a list -> 'a list
   uniq: l => {
     var ans = []
     L.iter (h => L.contains (h) (a) && ans.push (h)) (l)
@@ -405,7 +408,7 @@ var D = {
   },
 
   // 'a, 'b dictionary -> 'a, 'b dictionary
-  freeze: d => (Object.freeze (d), d),
+  freeze: d => (Object.freeze (D.clone (d)), d),
 
   // 'a, 'b dictionary -> 'a, 'b dictionary
   freeze_bind: d => D.freeze (D.bind (d)),
@@ -456,6 +459,9 @@ var D = {
 
   // ('a -> bool) -> 'b, 'a dictionary -> (('b, 'a) dictionary * ('b, 'a) dictionary)
   partition: f => d => [D.filter (f) (d), D.filter (F.neg (f)) (d)],
+
+  // 'a, 'b dictionary -> 'a, 'b dictionary
+  clone: d => D.map (F.id) (d),
 
   // 'a, 'b dictionary -> 'a, 'b dictionary -> 'a, 'b dictionary
   extend: d1 => d2 => {

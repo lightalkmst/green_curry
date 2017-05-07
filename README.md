@@ -16,30 +16,52 @@ The contents of this package are organized into submodules:
 
 This library is to provide support for functional programming. Though some other libraries exist that expose functional programming in JavaScript, they take a partially object-oriented approach that dilutes a lot of the value of a functional style. Though this mixture can be useful, those libraries have not closed the gap caused by some of JavaScript's idiosyncracies.
 
-I believe that what's held JavaScript back from being adopted as a functional programming language is its lack of a purely functional library. Functional programming's rewards are reaped best when currying is available, enabling point-free form to increase the abstractness and modularity of the code. One of the strengths of functional programming is that a vast majority of boilerplate is already replaced by higher-order library functions. As these functions are all very general, abstract ideas fueled by inversion of control, these could possibly never be outdated.
+I believe that what's held JavaScript back from being adopted as a functional programming language is its lack of a purely functional library. Functional programming's rewards are reaped best when currying is available, enabling point-free form to increase the abstractness and modularity of the code. One of the strengths of functional programming is that a vast majority of boilerplate is already replaced by higher-order library functions. As these functions are all very general, common boilerplate is replaced with simple functions that leave just your desired logic in place. Additionally, since higher-order functions are fueled by inversion of control, the same functions are used and recycled; they may never become outdated.
 
 Here is an example:
 ```javascript
-var fs = require ('fs')
-var green_curry = require ('green_curry')
+// summing up a list
+function sum_list(list) {
+  var ans = 0;
+  for (var i = 0; i < list.length; i++) {
+    ans += list[i];
+  }
+  return ans;
+}
+
+// summing up a list of lists
+function sum_lists(list) {
+  var ans = 0;
+  for (var i = 0; i < list.length; i++) {
+    ans += sum_list(list[i]);
+  }
+  return ans;
+}
+
+// summing up a list of lists of lists
+function sum_lists2(list) {
+  var ans = 0;
+  for (var i = 0; i < list.length; i++) {
+    ans += sum_lists(list[i]);
+  }
+  return ans;
+}
+```
+The above code, functionally:
+```javascript
+const green_curry = require ('green_curry')
 green_curry.globalize ()
 
-// string -> 'a
-// given a path, concatenates all of the files and evals the result
-var eval_dir = h => F.p (h) (
-    fs.readdirSync                                  // get the list of file names in the directory
-    >> L.map (F['+'] (h))                           // append the path before each file name
-    >> L.map (h => fs.readFileSync (h, 'utf8'))     // transform each file path to its file contents
-    >> L.fold (a => h => `${a};${h}`) ('')          // concatenate all of the files, delimited by ';'
-    >> F.eval                                       // evaluate the concatenated files
-)
+// summing up a list
+const sum_list = L.fold (F['+']) (0)
+
+// summing up a list of lists
+const sum_lists = F.c () (L.map (sum_list) >> sum_list)
+
+// summing up a list of lists of lists
+const sum_lists2 = F.c () (L.map (sum_lists) >> sum_list)
 ```
-
-An understanding of the typed lambda calculus is required for effective use of this library as all functions provided by this library are curried (all functions are free of self-references, allowing their safe use as first-class functions).
-
-An understanding of the JavaScript type system is recommended for greater use of this library (my type signatures are not strict; following/enforcing a type system by using the appropriate functions keeps code clear, but careful use of type coercion has its rewards)
-
-An understanding of closures and mutability is recommended for greater use of this library (all functions are pure, except F.c and F.p)
+An understanding of the typed lambda calculus, currying, JavaScript type system, closures, and mutability are recommended for effective use of this library. All functions are free of self-references, allowing their safe use as first-class functions. All functions are pure, except globalize, F.c, and F.p.
 
 ## globalize
 Pulls the included submodules into global scope to obviate the need for fully-qualifying each resource
@@ -598,6 +620,11 @@ L.sort (F['-']) ([1, 6, 2, 7, 3, 8, 4, 9, 5, 0]) // [0, 1, 2, 3, 4, 5, 6, 7, 8, 
 Returns the list containing the elements of (arg2) for which (arg1) returned true and the list containing all other elements
 ```javascript
 L.partition (F['='] (3)) ([1, 2, 3, 4, 5]) // [[3], [1, 2, 4, 5]]
+```
+#### L.clone: 'a list -> 'a list
+Returns a shallow copy of the list
+```javascript
+L.clone ([1, 2, 3, 4, 5]) // [1, 2, 3, 4, 5]
 ```
 #### L.uniq : 'a list -> 'a list
 Returns the list with duplicates removed
