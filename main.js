@@ -30,8 +30,26 @@ var F = {
   // operates at global scope (ie: ignores variables) if pointless form
   eval: x => eval (x),
 
-  // yes, i know it's weak equality
-  '=': x => y => x == y,
+  '=': x => y => {
+    if (x === y) {
+      return true
+    }
+    else if (typeof x == 'object' && typeof y == 'object') {
+      if (Array.isArray (x) != Array.isArray (y)) {
+        return false
+      }
+      else if (Array.isArray (x)) {
+        return L.equals (x) (y)
+      }
+      else {
+        return D.equals (x) (y)
+      }
+    }
+    else {
+      return false
+    }
+  },
+
   '==': x => y => x == y,
 
   '===': x => y => x === y,
@@ -96,7 +114,7 @@ var F = {
   /////////////////
 
   // ('a -> bool) -> ('a -> bool)
-  neg: f => (...x) => ! f (...x),
+  neg: f => x => ! f (x),
 
   // ('a -> bool) -> ('a -> bool) -> ('a -> bool)
   union: f => g => x => f (x) || g (x),
@@ -324,7 +342,7 @@ var L = {
   append: l1 => l2 => [...l1, ...l2],
 
   // 'a list -> 'b list -> bool
-  uneq_length: l1 => l2 => l1.length == l2.length,
+  uneq_length: l1 => l2 => l1.length != l2.length,
 
   // (int -> 'a -> 'b -> unit) -> 'a list -> 'b list -> unit
   iteri2: f => l1 => l2 => {
@@ -365,6 +383,16 @@ var L = {
     L.iteri2 (i => h1 => h2 => ans[i] = [h1, h2]) (l1) (l2)
     return ans
   },
+
+  // 'a list -> 'a list -> bool
+  equals: l1 => l2 => {
+    if (L.uneq_length (l1) (l2)) {
+      return false
+    }
+    var ans = true
+    L.iteri (i => h => ans = ans && F['='] (h) (l2[i])) (l1)
+    return ans
+  },
 }
 
 var D = {
@@ -374,29 +402,29 @@ var D = {
   //              //
   //////////////////
 
-  // 'a, 'b dictionary -> bool
+  // ('a, 'b) dictionary -> bool
   is_empty: d => d.keys ().length == 0,
 
-  // 'a -> 'a, 'b dictionary -> 'b
+  // 'a -> ('a, 'b) dictionary -> 'b
   get: x => d => d[x],
 
-  // ('a * 'b) list -> 'a, 'b dictionary
+  // ('a * 'b) list -> ('a, 'b) dictionary
   create: l => {
     var ans = {}
     L.iter (h => ans[h[0]] = h[1]) (l)
     return ans
   },
 
-  // 'a, 'b dictionary -> 'a list
+  // ('a, 'b) dictionary -> 'a list
   keys: d => Object.keys (d),
 
-  // 'a, 'b dictionary -> 'b list
+  // ('a, 'b) dictionary -> 'b list
   vals: d => L.map (F.swap (D.get) (d)) (D.keys (d)),
 
-  // 'a, 'b dictionary -> ('a * 'b) list
+  // ('a, 'b) dictionary -> ('a * 'b) list
   pairs: d => L.map (h => [h, d[h]]) (D.keys (d)),
 
-  // 'a, 'b dictionary -> 'a, 'b dictionary
+  // ('a, 'b) dictionary -> ('a, 'b) dictionary
   bind: o => {
     var ans = {}
     for (var k in o) {
@@ -407,13 +435,13 @@ var D = {
     return ans
   },
 
-  // 'a, 'b dictionary -> 'a, 'b dictionary
+  // ('a, 'b) dictionary -> ('a, 'b) dictionary
   freeze: d => (Object.freeze (D.clone (d)), d),
 
-  // 'a, 'b dictionary -> 'a, 'b dictionary
+  // ('a, 'b) dictionary -> ('a, 'b) dictionary
   freeze_bind: d => D.freeze (D.bind (d)),
 
-  // ('a -> 'b -> unit) -> 'a, 'b dictionary -> unit
+  // ('a -> 'b -> unit) -> ('a, 'b) dictionary -> unit
   iterk: f => d => L.iter (h => f (h) (d[h])) (D.keys (d)),
 
   // ('a -> unit) -> 'b, 'a dictionary -> unit
@@ -422,7 +450,7 @@ var D = {
   // ('a -> 'b -> 'a) -> 'a -> ('c, 'b) list -> 'a
   fold: f => a => d => (L.iter (h => a = f (a) (h)) (D.vals (d)), a),
 
-  // ('a -> 'b -> 'c) -> 'a, 'b dictionary -> 'a, 'c dictionary
+  // ('a -> 'b -> 'c) -> ('a, 'b) dictionary -> 'a, 'c dictionary
   mapk: f => d => {
     var ans = {}
     D.iterk (k => v => ans[k] = f (k) (v)) (d)
@@ -454,16 +482,16 @@ var D = {
   // 'a -> 'b, 'a dictionary -> bool
   contains: x => d => L.contains (x) (D.vals (d)),
 
-  // 'a, 'b dictionary -> int
+  // ('a, 'b) dictionary -> int
   length: d => L.length (D.keys (d)),
 
   // ('a -> bool) -> 'b, 'a dictionary -> (('b, 'a) dictionary * ('b, 'a) dictionary)
   partition: f => d => [D.filter (f) (d), D.filter (F.neg (f)) (d)],
 
-  // 'a, 'b dictionary -> 'a, 'b dictionary
+  // ('a, 'b) dictionary -> ('a, 'b) dictionary
   clone: d => D.map (F.id) (d),
 
-  // 'a, 'b dictionary -> 'a, 'b dictionary -> 'a, 'b dictionary
+  // ('a, 'b) dictionary -> ('a, 'b) dictionary -> ('a, 'b) dictionary
   extend: d1 => d2 => {
     var ans = {}
     D.iterk (k => v => ans[k] = v) (d1)
@@ -471,7 +499,7 @@ var D = {
     return ans
   },
 
-  // 'a, 'b dictionary -> 'a list -> 'a, 'b dictionary
+  // ('a, 'b) dictionary -> 'a list -> ('a, 'b) dictionary
   delete: d => l => {
     var ans = {}
     for (k in d) {
@@ -480,7 +508,17 @@ var D = {
       }
     }
     return ans
-  }
+  },
+
+  // ('a, 'b) dictionary -> ('a, 'b) dictionary -> bool
+  equals: d1 => d2 => {
+    if (! L.equals (D.keys (d1)) (D.keys (d2))) {
+      return false
+    }
+    var ans = true
+    D.iterk (k => v => ans = ans && F['='] (v) (d2[k])) (d1)
+    return ans
+  },
 }
 
 var S = {
@@ -545,4 +583,5 @@ var globalize = () => {
   }) (library)
 }
 
-module.exports = D.extend (library) ({globalize: globalize})
+if (typeof exports != 'undefined')
+  module.exports = D.extend (library) ({globalize: globalize})
