@@ -63,7 +63,7 @@ const sum_lists2 = F.c () (L.map (sum_lists) >> sum_list)
 ```
 An understanding of the typed lambda calculus, currying, JavaScript type system, closures, and mutability are recommended for effective use of this library. All functions are free of self-references, allowing their safe use as first-class functions. All functions are pure, except globalize, F.c, and F.p.
 
-## globalize
+## globalize : unit -> unit
 Pulls the included submodules into global scope to obviate the need for fully-qualifying each resource
 
 All examples on this page will assume this has already been called
@@ -87,7 +87,7 @@ The identity function
 #### F.const : (x: 'a) -> unit -> 'a
 Generates a constant function
 
-#### F.ignore : 'a -> unit
+#### F.ignore : (x: 'a) -> unit
 Does nothing
 
 #### F.exec : (f: unit -> 'a) -> 'a
@@ -121,149 +121,132 @@ f ('a') // 'Hint: 3?'
 Deep comparison of x and y
 
 #### F.== : (x: 'a) -> (y: 'a) -> bool
-Compares the arguments with soft equality
+Compares the equality of x and y coerced to x's type
 
 #### F.=== : (x: 'a) -> (y: 'a) -> bool
-Compares the arguments with hard equality
+Compares the equality of x and y
 
 #### F.!= : (x: 'a) -> (y: 'a) -> bool
 #### F.<> : (x: 'a) -> (y: 'a) -> bool
-Compares the arguments with soft inequality
+Compares the inequality of x and y coerced to x's type
 
 #### F.!== : (x: 'a) -> (y: 'a) -> bool
-Compares the arguments with hard inequality
+Compares the inequality of x and y
 
 #### F.> : (x: num) -> (y: num) -> bool
-Returns if (arg1) is greater than (arg2)
+Returns if x is greater than y
 
 #### F.>= : (x: num) -> (y: num) -> bool
-Returns if (arg1) is greater than or equal to (arg2)
+Returns if x is greater than or equal to y
 
 #### F.< : (x: num) -> (y: num) -> bool
-Returns if (arg1) is lesser than (arg2)
+Returns if x is lesser than y
 
 #### F.<= : (x: num) -> (y: num) -> bool
-Returns if (arg1) is lesser than or equal to (arg2)
+Returns if x is lesser than or equal to y
 
 #### F.! : (x: bool) -> bool
-Negates the argument
+Negates x
 
 #### F.~ : (x: num) -> num
-2's complements the argument
+2's complements x
 
-#### F.+ : (x: num) -> num
-Adds the arguments
+#### F.+ : (x: num) -> (y: num) -> num
+Adds x by y
 
-#### F.- : (x: num) -> num
-Subtracts the arguments
+#### F.- : (x: num) -> (y: num) -> num
+Subtracts x by y
 
-#### F.* : (x: num) -> num
-Multiplies the arguments
+#### F.* : (x: num) -> (y: num) -> num
+Multiplies x by y
 
-#### F./ : (x: num) -> num
-Divides the arguments
+#### F./ : (x: num) -> (y: num) -> num
+Divides x by y
 
-#### F.% : (x: num) -> num
-Modulo divides the arguments
+#### F.% : (x: num) -> (y: num) -> num
+Modulo divides x by y
 
-#### F.| : (x: num) -> num
-Bitwise Or the arguments
+#### F.| : (x: num) -> (y: num) -> num
+Bitwise ors x by y
 
-#### F.|| : (x: bool) -> bool
-Logical Or the arguments
-
-(note: the arguments are evaluated eagerly so this does not short-circuit)
-
-#### F.& : (x: num) -> num
-Bitwise And the arguments
-
-#### F.&& : (x: bool) -> bool
-Logical And the arguments
+#### F.|| : (x: bool) -> (y: bool) -> bool
+Logical ors x by y
 
 (note: the arguments are evaluated eagerly so this does not short-circuit)
 
-#### F.^ : (x: num) -> num
-Bitwise Xor the arguments
+#### F.& : (x: num) -> (y: num) -> num
+Bitwise ands x by y
 
-#### F.>>> : (x: num) -> num
-Sign-propagating right shifts the arguments
+#### F.&& : (x: bool) -> (y: bool) -> bool
+Logical ands x by y
 
-#### F.>>>> : (x: num) -> num
-Zero-fill right shifts the arguments
+(note: the arguments are evaluated eagerly so this does not short-circuit)
 
-#### F.<<< : (x: num) -> num
-Left shifts the arguments
+#### F.^ : (x: num) -> (y: num) -> num
+Bitwise xors x by y
+
+#### F.>>> : (x: num) -> (y: num) -> num
+Sign-propagating right shifts x by y
+
+#### F.>>>> : (x: num) -> (y: num) -> num
+Zero-fill right shifts x by y
+
+#### F.<<< : (x: num) -> (y: num) -> num
+Left shifts x by y
 
 #### F.?? : (x: 'a) -> (y: 'a) -> 'a
-If (arg1) is not null
-
-Then return (arg1)
-
-Else return (arg2)
+Returns x if it is not null and y otherwise
 
 (note: the arguments are evaluated eagerly so this does not short-circuit)
 
 #### F.?: : (x: bool) -> (y: 'a) -> (z: 'a) -> 'a
-If (arg1) is defined
-
-Then return (arg1)
-
-Else return (arg2)
+Returns y if x and z otherwise
 
 (note: the arguments are evaluated eagerly so this does not short-circuit)
 
 #### F.|> : (x: 'a) -> (f: 'a -> 'b) -> 'b
 #### F.@@ : (x: 'a) -> (f: 'a -> 'b) -> 'b
-Passes (arg1) into (arg2)
+Calls f with x and returns the result
 
 #### F.<| : (f: 'a -> 'b) -> (x: 'a) -> 'b
-Passes (arg2) into (arg1)
+Calls f with x and returns the result
 
 #### F.<< : (f: 'a -> 'b) -> (g: 'c -> 'a) -> ('c -> 'a)
-Function composes the arguments
+Function composes f and g
 
 #### F.>> : (f: 'a -> 'b) -> (g: 'c -> 'a) -> ('a -> 'c)
-Reverse function composes the arguments
+Reverse function composes f and g
 
 #### F.neg : (f: 'a -> bool) -> ('a -> bool)
-Negates the predicate
+Returns a predicate that is the negation of f
 
 #### F.union : (f: 'a -> bool) -> (g: 'a -> bool) -> ('a -> bool)
-Returns a predicate that is a union of the predicates
+Returns a predicate that is a union of f and g
 
 #### F.inter : (f: 'a -> bool) -> (g: 'a -> bool) -> ('a -> bool)
-Returns a predicate that is an intersection of the predicates
+Returns a predicate that is an intersection of f and g
 
 #### F.try : (b: bool) -> (fs: (unit -> 'a) list) -> 'a
-Invokes the first function in (arg2)
+Iteratively calls each function in fs until one returns without an exception and returns the result
 
-If the function throws an exception
+If b, then prints each exception to console
 
-Then
+#### F.swap : (f: 'a -> 'b -> 'c) -> ('b -> 'a -> 'c)
+Swaps the order of the next two arguments of f
 
-&nbsp;&nbsp;&nbsp;&nbsp;If (arg1) is true
+#### F.delay : (x: num) -> (f: unit -> unit) -> unit
+Calls f after waiting x millisecons
 
-&nbsp;&nbsp;&nbsp;&nbsp;Then the exception is printed to console
+#### F.tap : (f: 'a -> 'b) -> (x: 'a) -> 'a
+Calls f with x and returns x
 
-&nbsp;&nbsp;&nbsp;&nbsp;Recurse this function with (arg1) and the remainder of (arg2)
-
-Else the result is returned
-
-#### F.swap : ('a -> 'b -> 'c) -> ('b -> 'a -> 'c)
-Swaps the order of the next two arguments of the given function
-
-#### F.delay : num -> (unit -> unit) -> unit
-Calls the given function after waiting the given time in ms
-
-#### F.tap : ('a -> 'b) -> 'a -> 'a
-Passes argument 2 to argument 1 and then returns argument 2
 (note: for side-effecting when you want to retain the reference)
 
-#### F.rcomp : (? -> ?) list -> (? -> ?)
-Reverse function composes the argument
+#### F.rcomp : (fs: (? -> ?) list) -> (? -> ?)
+Reverse function composes the functions in fs
 
-#### F.c : unit -> (? -> ?) list -> (? -> ?)
-Reverse function composes the argument, but with a temporary DSL that is applied only one level deep
+#### F.c : unit -> (fs: (? -> ?) list) -> (? -> ?)
+Reverse function composes fs with a temporary DSL
 
 (note: requires at least two functions to be composed to work properly)
 
@@ -276,8 +259,8 @@ var f = F.c () (
 )
 f ('Hint: 3?') // true // prints 'Hint: 3?' then 'true'
 ```
-#### F.p : ? -> (? -> ?) list -> ?
-Passes (arg1) to the reverse function composed (arg2), but with a temporary DSL that is applied only one level deep
+#### F.p : (x: ?) -> (fs: (? -> ?) list) -> ?
+Reverse function composes fs with a temporary DSL and calls that with x and returns the result
 
 (note: requires at least two functions to be composed to work properly)
 
@@ -289,19 +272,19 @@ F.p ('Hint: 3?') (
     >> F.tap (F.log)
 ) == true // prints 'Hint: 3?' then 'true'
 ```
-#### F.memoize : ('a -> 'b) -> ('a -> 'b)
-Returns a memoized version of the function
+#### F.memoize : (f: 'a -> 'b) -> ('a -> 'b)
+Returns a memoized version f
 
-The memoization has O(n) lookup
+(note: the memoization has O(n) lookup)
 
-#### F.times : num -> (unit -> unit) -> unit
-Invokes (arg2) (arg1) times
+#### F.times : (x: num) -> (f: unit -> unit) -> unit
+Invokes f x times
 
-#### F.after : num -> ('a -> 'b') -> ('a -> unit/'b)
-Returns a version of (arg2) that does nothing and returns undefined until the (arg1)th time when it reverts to normal
+#### F.after : (x: num) -> (f: 'a -> 'b') -> ('a -> unit/'b)
+Returns a version of f that does nothing and returns undefined until the xth time when it reverts to normal
 
-#### F.before : num -> ('a -> 'b') -> ('a -> unit/'b)
-Returns a version of (arg2) that operates normally until the (arg1)th time when it starts doing nothing and returns undefined
+#### F.before : (x: num) -> (f: 'a -> 'b') -> ('a -> unit/'b)
+Returns a version of f that operates normally until the xth time when it starts doing nothing and returns undefined
 
 ## L (1 list and 2 lists functions)
 (note: lists are assumed to be dense, meaning all data is contiguous)
@@ -310,311 +293,249 @@ Returns a version of (arg2) that operates normally until the (arg1)th time when 
 
 ### 1 list functions
 
-#### L.cons : 'a -> 'a list -> 'a list
-Appends (arg1) to the front of (arg2)
+#### L.cons : (x: 'a) -> (l: 'a list) -> 'a list
+Prepends x to l
 
-#### L.head : 'a list -> 'a
-Returns the first element of the list
+#### L.head : (l: 'a list) -> 'a
+Throws an exception if l is empty and returns the first element of l otherwise
 
-#### L.tail : 'a list -> 'a list
-Returns all elements of the list except the first
+#### L.tail : (l: 'a list) -> 'a list
+Throws an exception if l is empty and returns all elements of l except the first otherwise
 
-#### L.length : 'a list -> num
-Returns the length of the list
+#### L.length : (l: 'a list) -> num
+Returns the length of l
 
-#### L.is_empty : 'a list -> bool
-Returns true if the list is empty, false otherwise
+#### L.is_empty : (l: 'a list) -> bool
+Returns true if l is empty and false otherwise
 
-#### L.get : num -> 'a list -> 'a
-If (arg1) is greater than (arg2)'s length
-
-Then returns undefined
-
-Else returns the element at index (arg1) in (arg2) otherwise
+#### L.get : (x: num) -> (l: 'a list) -> 'a
+Returns the xth element in l if it exists and returns undefined otherwise
 
 #### L.range : (x: num) -> (y: num) -> num list
-If (arg1) is less than or equal to (arg2)
+Returns the numbers between x and y, double inclusive, if x is less than or equal to y and an empty list otherwise
 
-Then returns a list of increasing consecutive elements ranging from (arg1) to (arg2), both inclusive
+#### L.create : (x: num) -> (y: 'a) -> 'a list
+Returns y repeated x times
 
-Else returns an empty list
+#### L.init : (x: num) -> (f: int -> 'a) -> 'a list
+Returns a list of x elements generated by f passed each index
 
-#### L.create : num -> 'a -> 'a list
-Returns a list of (arg1) (arg2) elements
+#### L.rev : (l: 'a list) -> 'a list
+Returns l with the elements in reverse order
 
-#### L.init : num -> (int -> 'a) -> 'a list
-Returns a list of (arg1) elements generated by (arg2) passed the index of its element
+#### L.iter : (f: 'a -> unit) -> (l: 'a list) -> unit
+Calls f on each element in l
 
-#### L.rev : 'a list -> 'a list
-Returns a reverse of the list
-
-#### L.iter : ('a -> unit) -> 'a list -> unit
-For each element in (arg2)
-
-&nbsp;&nbsp;&nbsp;&nbsp;Passes the element to (arg1)
-
-#### L.iteri : (int -> 'a -> unit) -> 'a list -> unit
+#### L.iteri : (f: int -> 'a -> unit) -> (l: 'a list) -> unit
 Same as L.iter, except additionally passes the index as well
 
-#### L.fold : ('a -> 'b -> 'a) -> 'a -> 'b list -> 'a
-(arg2) is the initial state of the accumulator
+#### L.fold : (f: 'a -> 'b -> 'a) -> (a: 'a) -> (l: 'b list) -> 'a
+Calls f on the accumulator, initialized at a, and each element of l and returns the result
 
-(arg1) is iteratively passed the previous accumulator and the next element in (arg2)
+#### L.reduce : (f: 'a -> 'a -> 'a) -> (l: 'a list) -> 'a
+Throws an exception is l is empty and is the same as L.fold with the accumulator initialized to the first element in l otherwise
 
-Returns the final accumulator
+#### L.scan : (f: 'a -> 'b -> 'a) -> (a: 'a) -> (l: 'b list) -> 'a list
+Same as L.fold, but additionally returns all of the partial sums
 
-#### L.reduce : ('a -> 'a -> 'a) -> 'a list -> 'a
-If (arg2) is empty
+#### L.map : (f: 'a -> 'b) -> (l: 'a list) -> 'b list
+Returns l with each element transformed by f
 
-Then throws the exception F.e
+#### L.mapi : (f: int -> 'a -> 'b) -> (l: 'a list) -> 'b list
+Same as L.map, but additionally passes the index as well
 
-Else same as L.fold, except the first element in (arg1) is taken as the initial accumulator
+#### L.find : (f: 'a -> bool) -> (l: 'a list) -> 'a
+Returns the first element in l for which f returns true and throws F.e if one does not exist
 
-#### L.scan : ('a -> 'b -> 'a) -> 'a -> 'b list -> 'a list
-The first element in (arg2) is the initial state of the accumulator
+#### L.pick : (f: 'a -> unit/'b) -> (l: 'a list) -> unit/'b
+Returns the result of f for the first element in l for which f does not return undefined and throws F.e if one does not exist
 
-(arg1) is iteratively passed the previous accumulator and the next element in (arg2)
+#### L.filter : (f: 'a -> bool) -> (l: 'a list) -> 'a list
+Returns l without the elements for which f returns false
 
-Returns the list of all accumulators
+#### L.for_all : (f: 'a -> bool) -> (l: 'a list) -> bool
+Returns if f is true for all elements in l, vacuously true
 
-#### L.map : ('a -> 'b) -> 'a list -> 'b list
-Returns (arg2) with each element transformed by passing that element to (arg1)
+#### L.exists : (f: 'a -> bool) -> (l: 'a list) -> bool
+Returns if f is true for any element in l, vacuously false
 
-#### L.mapi : (int -> 'a -> 'b) -> 'a list -> 'b list
-Same as L.map, except additionally passes the index as well
+#### L.contains : (x: 'a) -> (l: 'a list) -> bool
+Returns if any element in l is equal to x
 
-#### L.find : ('a -> bool) -> 'a list -> 'a
-If an element exists in (arg2) for which (arg1) returns true
+#### L.sort : (f: 'a -> 'a -> int) -> (l: 'a list) -> 'a list
+Returns l sorted by f determined by normal comparator standards
 
-Then return that element
+#### L.partition : (f: 'a -> bool) -> (l: 'a list) -> ('a list * 'a list)
+Returns l into two lists, the first containing all elements for which f is true and the second containing everything else
 
-Else return undefined
+#### L.clone: (l: 'a list) -> 'a list
+Returns a shallow copy of l
 
-#### L.pick : ('a -> unit/'b) -> 'a list -> unit/'b
-If an element exists in (arg2) for which (arg1) does not return undefined
+#### L.uniq : (l: 'a list) -> 'a list
+Returns l with duplicates removed
 
-Then return that element passed to (arg1)
-
-Else return undefined
-
-#### L.filter : ('a -> bool) -> 'a list -> 'a list
-Returns (arg2) without the elements for which (arg1) returns false
-
-#### L.for_all : ('a -> bool) -> 'a list -> bool
-Returns if (arg1) returns true for all elements (arg2), vacuously true
-
-#### L.exists : ('a -> bool) -> 'a list -> bool
-Returns if (arg1) returns true for at least one element in (arg2), vacuously false
-
-#### L.contains : 'a -> 'a list -> bool
-Returns if (arg1) exists in (arg2)
-
-#### L.sort : ('a -> 'a -> int) -> 'a list -> 'a list
-Returns (arg2) sorted by (arg1) determined by normal comparator standards
-
-#### L.partition : ('a -> bool) -> 'a list -> ('a list * 'a list)
-Returns the list containing the elements of (arg2) for which (arg1) returned true and the list containing all other elements
-
-#### L.clone: 'a list -> 'a list
-Returns a shallow copy of the list
-
-#### L.uniq : 'a list -> 'a list
-Returns the list with duplicates removed
-
-#### L.unzip : ('a * 'b) list -> 'a list * 'b list
-Returns the list of the first element of each element of the list and the list of the second element of each element of the list
+#### L.unzip : (l: ('a * 'b) list) -> 'a list * 'b list
+Returns the lists of the first element of each element of l and the second element of each element of l
 
 (note: this function does not enforce density)
 
 ### 2 list functions
-#### L.append : 'a list -> 'a list -> 'a list
-Returns (arg1) pre-pended to (arg2)
+#### L.append : (l1: 'a list) -> (l2: 'a list) -> 'a list
+Returns l1 prepended to l2
 
-#### L.uneq_length : 'a list -> 'b list -> bool
-Returns if (arg1) and (arg2) have unequal length
+#### L.eq_length : (l1: 'a list) -> (l2: 'b list) -> bool
+Returns if l1 and l2 have equal lengths
 
-#### L.iter2 : ('a -> 'b -> unit) -> 'a list -> 'b list -> unit
-If (arg2) and (arg3) have unequal lengths
+#### L.uneq_length : (l1: 'a list) -> (l2: 'b list) -> bool
+Returns if l1 and l2 have unequal lengths
 
-Then throws exception F.e
+#### L.iter2 : (f: 'a -> 'b -> unit) -> (l1: 'a list) -> (l2: 'b list) -> unit
+Throws exception F.e if l1 and l2 have unequal lengths and is the same as L.iter, but with corresponding elements of each list passed in otherwise
 
-Else same as L.iter, except additionally passing the element of (arg3)
+#### L.iteri2 : (f: int -> 'a -> 'b -> unit) -> (l1: 'a list) -> (l2: 'b list) -> unit
+Same as L.iter2, except additionally passing the index
 
-#### L.iteri2 : (int -> 'a -> 'b -> unit) -> 'a list -> 'b list -> unit
-If (arg2) and (arg3) have unequal lengths
+#### L.fold2 : (f: 'a -> 'b -> 'c -> 'a) -> (a: 'a) -> (l1: 'b list) -> (l2: 'c list) -> 'a
+Throws exception F.e if l1 and l2 have unequal lengths and is the same as L.fold, but with corresponding elements of each list passed in otherwise
 
-Then throws exception F.e
+#### L.map2 : (f: 'a -> 'b -> 'c) -> (l1: 'a list) -> (l2: 'b list) -> 'c list
+Throws exception F.e if l1 and l2 have unequal lengths and is the same as L.map, but with corresponding elements of each list passed in otherwise
 
-Else same as L.iter2, except additionally passing the index
+#### L.mapi2 : (f: int -> 'a -> 'b -> 'c) -> (l1: 'a list) -> (l2: 'b list) -> 'c list
+Throws exception F.e if l1 and l2 have unequal lengths and is the same as L.mapi, but with corresponding elements of each list passed in otherwise
 
-#### L.fold2 : ('a -> 'b -> 'c -> 'a) -> 'a -> 'b list -> 'c list -> 'a
-If (arg2) and (arg3) have unequal lengths
+#### L.for_all2 : (f: 'a -> 'b -> bool) -> (l1: 'a list) -> (l2: 'b list) -> bool
+Throws exception F.e if l1 and l2 have unequal lengths and is the same as L.for_all, but with corresponding elements of each list passed in otherwise
 
-Then throws exception F.e
-
-Else same as L.fold, except additionally passing the element of (arg3)
-
-#### L.mapi2 : (int -> 'a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
-If (arg2) and (arg3) have unequal lengths
-
-Then throws exception F.e
-
-Else same as L.mapi, except additionally passing the element of (arg3)
-
-#### L.map2 : ('a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
-If (arg2) and (arg3) have unequal lengths
-
-Then throws exception F.e
-
-Else same as L.map, except additionally passing the element of (arg3)
-
-#### L.for_all2 : ('a -> 'b -> bool) -> 'a list -> 'b list -> bool
-If (arg2) and (arg3) have unequal lengths
-
-Then throws exception F.e
-
-Else same as L.for_all, except additionally passing the element of (arg3)
-
-#### L.exists2 : ('a -> 'b -> bool) -> 'a list -> 'b list -> bool
-If (arg2) and (arg3) have unequal lengths
-
-Then throws exception F.e
-
-Else same as L.exists, except additionally passing the element of (arg3)
+#### L.exists2 : (f: 'a -> 'b -> bool) -> (l1: 'a list) -> (l2: 'b list) -> bool
+Throws exception F.e if l1 and l2 have unequal lengths and is the same as L.exists, but with corresponding elements of each list passed in otherwise
 
 #### L.zip : 'a list -> 'b list -> ('a * 'b) list
-If (arg2) and (arg3) have unequal lengths
-
-Then throws exception F.e
-
-Else returns the list with each element the list with the element of (arg1) first and the element of (arg2) second
+Throws exception F.e if l1 and l2 have unequal lengths and returns the corresponding elements of l1 and l2 combined
 
 #### L.equals : (x: 'a list) -> (y: 'a list) -> bool
-Deep comparison
+Deep comparison of x and y
 
 ## D (dictionary functions)
-#### D.is_empty : 'a, 'b dictionary -> bool
-Returns if (arg1) is empty
+#### D.is_empty : (d: 'a, 'b dictionary) -> bool
+Returns if d is empty
 
-#### D.get : 'a -> 'a, 'b dictionary -> 'b
-Returns the value in (arg2) with key (arg1)
+#### D.get : (k: 'a) -> (d: 'a, 'b dictionary) -> 'b
+Returns the element in d with key k
 
-#### D.create : ('a * 'b) list -> 'a, 'b dictionary
+#### D.create : (l: ('a * 'b) list) -> 'a, 'b dictionary
 Returns the dictionary with pairs of each element with the first element as the key and the second element as the value
 
-#### D.keys : 'a, 'b dictionary -> 'a list
-Returns a list of the keys of (arg1)
+#### D.keys : (d: 'a, 'b dictionary) -> 'a list
+Returns the keys of d
 
-#### D.vals : 'a, 'b dictionary -> 'b list
-Returns a list of the values of (arg1)
+#### D.vals : (d: 'a, 'b dictionary) -> 'b list
+Returns the values of d
 
-#### D.pairs : 'a, 'b dictionary -> ('a * 'b) list
-Returns a list of the key, value pairs of (arg1)
+#### D.pairs : (d: 'a, 'b dictionary) -> ('a * 'b) list
+Returns the key, value pairs of d
 
-#### D.bind : 'a, 'b dictionary -> 'a, 'b dictionary
-Binds the self-references for functions in the map to the dictionary and returns the dictionary
+#### D.bind : (d: 'a, 'b dictionary) -> 'a, 'b dictionary
+Binds the self-references for functions inside d to d and returns d
 
 (note: this one of the gaps I mentioned in the opening; in languages that automatically resolve this problem, it's not an issue)
 
-#### D.freeze : 'a, 'b dictionary -> 'a, 'b dictionary
-Freezes the dictionary and returns the dictionary
+#### D.freeze : (d: 'a, 'b dictionary) -> 'a, 'b dictionary
+Freezes d and returns d
 
-#### D.freeze_bind : 'a, 'b dictionary -> 'a, 'b dictionary
-Same as calling D.bind and then D.freeze on the dictionary
+#### D.freeze_bind : (d: 'a, 'b dictionary) -> 'a, 'b dictionary
+Same as D.bind then D.freeze
 
-#### D.iter : ('a -> unit) -> 'b, 'a dictionary -> unit
-Same as L.iteri on the values of (arg2), except with keys instead of indices
+#### D.iter : (f: 'a -> unit) -> (d: 'b, 'a dictionary) -> unit
+Same as L.iter on the values of d, except with keys instead of indices
 
-#### D.iterk : ('a -> 'b -> unit) -> 'a, 'b dictionary -> unit
+#### D.iterk : (f: 'a -> 'b -> unit) -> (d: 'a, 'b dictionary) -> unit
 Same as D.iter, except additionally passing the key
 
-#### D.fold : ('a -> 'b -> 'a) -> 'a -> ('c, 'b) list -> 'a
-Same as L.fold on the values of (arg2)
+#### D.fold : (f: 'a -> 'b -> 'a) -> (a: 'a) -> (d: 'c, 'b dictionary) -> 'a
+Same as L.fold on the values of d
 
-#### D.map : ('a -> 'b) -> 'c, 'a dictionary -> 'c, 'b dictionary
-Same as L.map on the values of (arg2)
+#### D.map : (f: 'a -> 'b) -> (d: 'c, 'a dictionary) -> 'c, 'b dictionary
+Same as L.map on the values of d
 
-#### D.mapk : ('a -> 'b -> 'c) -> 'a, 'b dictionary -> 'a, 'c dictionary
+#### D.mapk : (f: 'a -> 'b -> 'c) -> (d: 'a, 'b dictionary) -> 'a, 'c dictionary
 Same as D.map, except additionally passing the key
 
-#### D.find : ('a -> bool) -> 'b, 'a dictionary -> 'a
-Same as L.find on the values of (arg2)
+#### D.find : (f: 'a -> bool) -> (d: 'b, 'a dictionary) -> 'a
+Same as L.find on the values of d
 
-#### D.filter : ('a -> bool) -> 'a list -> 'a list
-Same as L.filter on the values of (arg2)
+#### D.filter : (f: 'a -> bool) -> (d: 'a list) -> 'a list
+Same as L.filter on the values of d
 
-#### D.filterk : ('a -> 'b -> bool) -> 'a list -> 'a list
+#### D.filterk : (f: 'a -> 'b -> bool) -> (d: 'a list) -> 'a list
 Same as D.filter, except additionally passed the key
 
-#### D.for_all : ('a -> bool) -> 'b, 'a dictionary -> bool
-Same as L.for_all on the values of (arg2)
+#### D.for_all : (f: 'a -> bool) -> (d: 'b, 'a dictionary) -> bool
+Same as L.for_all on the values of d
 
-#### D.exists : ('a -> bool) -> 'b, 'a dictionary -> bool
-Same as L.exists on the values of (arg2)
+#### D.exists : (f: 'a -> bool) -> (d: 'b, 'a dictionary) -> bool
+Same as L.exists on the values of d
 
-#### D.contains : 'a -> 'b, 'a dictionary -> bool
-Same as L.contains on the values of (arg2)
+#### D.contains : (x: 'a) -> (d: 'b, 'a dictionary) -> bool
+Same as L.contains on the values of d
 
-#### D.length : 'a, 'b dictionary -> num
-Returns the number of pairs in (arg1)
+#### D.length : (d: 'a, 'b dictionary) -> num
+Returns the number of key, value pairs in d
 
-#### D.partition : ('a -> bool) -> 'b, 'a dictionary -> (('b, 'a) dictionary * ('b, 'a) dictionary)
-Same as L.partition on the values of (arg2)
+#### D.partition : (f: 'a -> bool) -> (d: 'b, 'a dictionary) -> (('b, 'a) dictionary * ('b, 'a) dictionary)
+Same as L.partition on the values of d
 
-#### D.extend : 'a, 'b dictionary -> 'a, 'b dictionary -> 'a, 'b dictionary
-Returns (arg1) overlaid by (arg2)
+#### D.extend : (d1: 'a, 'b dictionary) -> (d2: 'a, 'b dictionary) -> 'a, 'b dictionary
+Returns d1 overlaid by d2
 
-#### D.delete : 'a, 'b dictionary -> 'a list -> 'a, 'b dictionary
-Returns (arg1) without the pairs without the keys in (arg2)
+#### D.delete : (d: 'a, 'b dictionary) -> (l: 'a list) -> 'a, 'b dictionary
+Returns d without the pairs with keys in l
 
-#### D.equals : (x: ('a, 'b) dictionary) -> (y: ('a, 'b) dictionary) -> bool
-Deep comparison
+#### D.equals : (d1: ('a, 'b) dictionary) -> (d2: ('a, 'b) dictionary) -> bool
+Deep comparison of d1 and d2
 
 ## S (string functions)
-#### S.length : string -> num
-Returns the length of (arg1)
+#### S.length : (x: string) -> num
+Returns the length of x
 
-#### S.get : num -> string -> string
-Returns the character at (arg1) in (arg2)
+#### S.get : (x: num) -> (y: string) -> string
+Returns the xth character in y
 
-#### S.substr : (x: num) -> (y: num) -> string -> string
-Returns the substring from (arg1) to (arg2) of (arg3) with some slice logic
+#### S.substr : (x: num) -> (y: num) -> (z: string) -> string
+Returns the substring from x to y in z with some slice logic
 
-#### S.index : string -> string -> num
-Returns the first index at which (arg1) appears in (arg2)
+#### S.index : (x: string) -> (y: string) -> num
+Returns the first index at which x appears in y
 
-#### S.contains : string -> string -> bool
-Returns if (arg1) appears in (arg2)
+#### S.contains : (x: string) -> (y: string) -> bool
+Returns if x appears at least once in y
 
-#### S.compare : string -> string -> num
-Follows normal comparator rules for strings for comparing (arg1) to (arg2)
+#### S.compare : (x: string) -> (y: string) -> num
+Follows normal comparator rules for strings for comparing x to y
 
-#### S.match : regex -> string -> string list
-If (arg2) is matched by (arg1)
+#### S.match : (r: regex) -> (x: string) -> string list
+Returns the match and capture groups of r in x if x matches r and null otherwise
 
-Then return a list of the match followed by captured groups
+#### S.replace : (r: regex) -> (x: string) -> (y: string) -> string
+Returns y with matches of r replaced by x
 
-Else return null
+#### S.rindex : (x: string) -> (y: string) -> num
+Same as S.index, except with the last occurence
 
-#### S.replace : regex -> string -> string -> string
-Returns (arg3) with matches of (arg1) replaced by (arg2)
+#### S.search : (r: regex) -> (x: string) -> num
+Returns the first index that x matches r
 
-#### S.rindex : string -> string -> num
-Same as S.index, except with the last occurance
+#### S.split : (r: regex) -> (x: string) -> string list
+Returns a list of the substrings of x split by r
 
-#### S.search : regex -> string -> num
-Returns the first index that (arg1) matches in (arg2)
+#### S.lower : (x: string) -> string
+Returns x with all characters lowercase
 
-#### S.split : regex -> string -> string list
-Returns a list of the substrings of (arg2) split by (arg1)
+#### S.upper : (x: string) -> string
+Returns x with all characters uppercase
 
-#### S.lower : string -> string
-Returns (arg1) with all characters lowercase
+#### S.trim : (x: string) -> string
+Returns x without surrounding whitespace
 
-#### S.upper : string -> string
-Returns (arg1) with all characters uppercase
-
-#### S.trim : string -> string
-Returns (arg1) without surrounding whitespace
-
-#### S.equals : string -> string -> bool
+#### S.equals : (x: string) -> (y: string) -> bool
+Returns if x and y are equal

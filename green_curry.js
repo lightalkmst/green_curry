@@ -289,7 +289,12 @@ var L = {
   map: f => L.mapi (F.const (f)),
 
   // ('a -> bool) -> 'a list -> 'a
-  find: f => l => l.find (f),
+  find: f => l => {
+    var ans = l.find (f)
+    if (ans === undefined)
+      throw F.e
+    return ans
+  },
 
   // ('a -> unit/'b) -> 'a list -> unit/'b
   pick: f => l => f (L.find (x => f (x) !== undefined) (l)),
@@ -304,7 +309,14 @@ var L = {
   exists: f => l => l.some (f),
 
   // 'a -> 'a list -> bool
-  contains: x => l => l.includes (x),
+  contains: x => l => {
+    for (var i = 0; i < l.length; i++) {
+      if (F['='] (x) (l[i])) {
+        return true
+      }
+    }
+    return false
+  },
 
   // ('a -> 'a -> int) -> 'a list -> 'a list
   sort: f => l => l.concat ().sort ((x, y) => f (x) (y)),
@@ -340,6 +352,9 @@ var L = {
 
   // 'a list -> 'a list -> 'a list
   append: l1 => l2 => [...l1, ...l2],
+
+  // 'a list -> 'b list -> bool
+  eq_length: l1 => l2 => l1.length == l2.length,
 
   // 'a list -> 'b list -> bool
   uneq_length: l1 => l2 => l1.length != l2.length,
@@ -563,6 +578,12 @@ var S = {
 
   // string -> string
   trim: s => s.trim (),
+
+  // string -> string -> bool
+  equals: s1 => s2 => s1 === s2,
+
+  // string -> string list -> string
+  join: s => L.fold (a => h => a + s + h) (''),
 }
 
 var library = {

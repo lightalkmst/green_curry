@@ -1,11 +1,11 @@
 {
   "name": "green_curry",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Curried functional programming library",
-  "main": "main.js",
+  "main": "green_curry.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node main.js"
+    "start": "node green_curry.js"
   },
   "contributors": [
     "Omar Khan <rook_master2000@yahoo.com>"
