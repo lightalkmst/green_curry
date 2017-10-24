@@ -583,7 +583,7 @@ var S = {
   equals: s1 => s2 => s1 === s2,
 
   // string -> string list -> string
-  join: s => L.fold (a => h => a + s + h) (''),
+  join: s => L.reduce (a => h => a + s + h),
 }
 
 var library = {
