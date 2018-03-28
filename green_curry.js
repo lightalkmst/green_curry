@@ -1,3 +1,8 @@
+var hack = arr => function () {
+  arr.push (this)
+  return 0
+}
+
 var F = {
   /////////////
   //         //
@@ -11,10 +16,10 @@ var F = {
   id: x => x,
 
   // 'a -> unit -> 'a
-  const: x => _ => x,
+  const: x => () => x,
 
   // 'a -> unit
-  ignore: _ => undefined,
+  ignore: () => undefined,
 
   // (unit -> 'a) -> 'a
   exec: f => f (),
@@ -39,7 +44,7 @@ var F = {
         return false
       }
       else if (Array.isArray (x)) {
-        return L.equals (x) (y)
+        return A.equals (x) (y)
       }
       else {
         return D.equals (x) (y)
@@ -126,12 +131,10 @@ var F = {
   try: p => fs => {
     var f = fs.shift ()
     try {
-      return f ()
+      return f && f ()
     }
     catch (e) {
-      if (p) {
-        F.log (e)
-      }
+      p && F.log (e)
       return fs[0] ? F.try (p) (fs) : undefined
     }
   },
@@ -151,37 +154,29 @@ var F = {
   // use that and type it properly as
   // ('a -> 'b) -> ('b -> 'c) -> 'a -> 'c
   // but without an infix operator, it'd be verbose non-variadic
-  // (? -> ?) list -> (? -> ?)
-  rcomp: fs => F.swap (L.fold (F['|>'])) (fs),
+  // (? -> ?) array -> (? -> ?)
+  rcomp: fs => F.swap (A.fold (F['|>'])) (fs),
 
   // alternatively this operator overloading hack that i lifted from:
   // http://scott.sauyet.com/Javascript/Talk/Compose/2013-05-22/#slide-33
-  // unit -> (? -> ?) list -> (? -> ?)
-  c: _ => {
+  c: () => {
     var fs = []
     var valueOf = Function.prototype.valueOf
-    Function.prototype.valueOf = function () {
-      fs.push (this)
-      return 1
-    }
-    return _ => {
+    Function.prototype.valueOf = hack (fs)
+    return f => {
       Function.prototype.valueOf = valueOf
-      return F.rcomp (fs)
+      return F.rcomp (fs.length ? fs : [f || F.id])
     }
   },
 
   // adaptation of above that pipes a given argument through the composed function
-  // ? -> (? -> ?) list -> ?
   p: x => {
     var fs = []
     var valueOf = Function.prototype.valueOf
-    Function.prototype.valueOf = function () {
-      fs.push (this)
-      return 1
-    }
-    return _ => {
+    Function.prototype.valueOf = hack (fs)
+    return f => {
       Function.prototype.valueOf = valueOf
-      return F.rcomp (fs) (x)
+      return F.rcomp (fs.length ? fs : [f || F.id]) (x)
     }
   },
 
@@ -204,40 +199,40 @@ var F = {
   times: x => f => {for (var n = 0; n < x; n++) f ()},
 
   // int -> ('a -> 'b') -> ('a -> unit/'b)
-  after: n => f => (...args) => n > 1 ? (n--, undefined) : f (...args),
+  after: n => f => x => n-- >= 1 ? undefined : f (x),
 
   // int -> ('a -> 'b') -> ('a -> unit/'b)
-  before: n => f => (...args) => n > 1 ? (n--, f (...args)) : undefined,
+  before: n => f => x => n-- >= 1 ? f (x) : undefined,
 }
 
-var L = {
-  /////////////
-  //         //
-  //  Lists  //
-  //         //
-  /////////////
+var A = {
+  //////////////
+  //          //
+  //  Arrays  //
+  //          //
+  //////////////
 
-  // all functions assume dense 0-indexed lists
+  // all functions assume dense 0-indexed arrays
 
-  // 'a -> 'a list -> 'a list
+  // 'a -> 'a array -> 'a array
   cons: h => l => [h, ...l],
 
-  // 'a list -> 'a
-  head: l => F.ex_if (L.is_empty (l)) || l[0],
+  // 'a array -> 'a
+  head: l => F.ex_if (A.is_empty (l)) || l[0],
 
-  // 'a list -> 'a list
-  tail: l => F.ex_if (L.is_empty (l)) || l.slice (1),
+  // 'a array -> 'a array
+  tail: l => F.ex_if (A.is_empty (l)) || l.slice (1),
 
-  // 'a list -> int
+  // 'a array -> int
   length: l => l.length,
 
-  // 'a list -> bool
+  // 'a array -> bool
   is_empty: l => l.length == 0,
 
-  // int -> 'a list -> 'a
+  // int -> 'a array -> 'a
   get: n => l => l[n],
 
-  // int -> int -> int list
+  // int -> int -> int array
   range: x => y => {
     var l = 0
     var ans = []
@@ -245,16 +240,16 @@ var L = {
     return ans
   },
 
-  // int -> 'a -> 'a list
-  create: n => x => L.init (n) (F.const (x)),
+  // int -> 'a -> 'a array
+  create: n => x => A.init (n) (F.const (x)),
 
-  // int -> (int -> 'a) -> 'a list
-  init: n => f => L.map (f) (L.range (0) (n - 1)),
+  // int -> (int -> 'a) -> 'a array
+  init: n => f => A.map (f) (A.range (0) (n - 1)),
 
-  // 'a list -> 'a list
-  rev: l => L.clone (l).reverse (),
+  // 'a array -> 'a array
+  rev: l => A.clone (l).reverse (),
 
-  // (int -> 'a -> unit) -> 'a list -> unit
+  // (int -> 'a -> unit) -> 'a array -> unit
   iteri: f => l => {
     var len = l.length
     for (var i = 0; i < len; i++) {
@@ -262,33 +257,33 @@ var L = {
     }
   },
 
-  // ('a -> unit) -> 'a list -> unit
-  iter: f => L.iteri (F.const (f)),
+  // ('a -> unit) -> 'a array -> unit
+  iter: f => A.iteri (F.const (f)),
 
-  // ('a -> 'b -> 'a) -> 'a -> 'b list -> 'a
-  fold: f => a => l => (L.iter (h => a = f (a) (h)) (l), a),
+  // ('a -> 'b -> 'a) -> 'a -> 'b array -> 'a
+  fold: f => a => l => (A.iter (h => a = f (a) (h)) (l), a),
 
-  // ('a -> 'a -> 'a) -> 'a list -> 'a
-  reduce: f => l => L.fold (f) (L.head (l)) (L.tail (l)),
+  // ('a -> 'a -> 'a) -> 'a array -> 'a
+  reduce: f => l => A.fold (f) (A.head (l)) (A.tail (l)),
 
-  // ('a -> 'b -> 'a) -> 'a -> 'b list -> 'a list
+  // ('a -> 'b -> 'a) -> 'a -> 'b array -> 'a array
   scan: f => a => l => {
     var ans = [a]
-    L.iteri (i => h => ans[i + 1] = a = f (a) (h)) (l)
+    A.iteri (i => h => ans[i + 1] = a = f (a) (h)) (l)
     return ans
   },
 
-  // (int -> 'a -> 'b) -> 'a list -> 'b list
+  // (int -> 'a -> 'b) -> 'a array -> 'b array
   mapi: f => l => {
     var ans = []
-    L.iteri (i => h => ans[i] = f (i) (h)) (l)
+    A.iteri (i => h => ans[i] = f (i) (h)) (l)
     return ans
   },
 
-  // ('a -> 'b) -> 'a list -> 'b list
-  map: f => L.mapi (F.const (f)),
+  // ('a -> 'b) -> 'a array -> 'b array
+  map: f => A.mapi (F.const (f)),
 
-  // ('a -> bool) -> 'a list -> 'a
+  // ('a -> bool) -> 'a array -> 'a
   find: f => l => {
     var ans = l.find (f)
     if (ans === undefined)
@@ -296,117 +291,99 @@ var L = {
     return ans
   },
 
-  // ('a -> unit/'b) -> 'a list -> unit/'b
-  pick: f => l => f (L.find (x => f (x) !== undefined) (l)),
+  // ('a -> unit/'b) -> 'a array -> unit/'b
+  pick: f => l => f (A.find (x => f (x) != undefined) (l)),
 
-  // ('a -> bool) -> 'a list -> 'a list
+  // ('a -> bool) -> 'a array -> 'a array
   filter: f => l => l.filter (f),
 
-  // ('a -> bool) -> 'a list -> bool
+  // ('a -> bool) -> 'a array -> bool
   for_all: f => l => l.every (f),
 
-  // ('a -> bool) -> 'a list -> bool
+  // ('a -> bool) -> 'a array -> bool
   exists: f => l => l.some (f),
 
-  // 'a -> 'a list -> bool
-  contains: x => l => {
-    for (var i = 0; i < l.length; i++) {
-      if (F['='] (x) (l[i])) {
-        return true
-      }
-    }
-    return false
-  },
+  // 'a -> 'a array -> bool
+  contains: x => l => A.exists (F['='] (x)) (l),
 
-  // ('a -> 'a -> int) -> 'a list -> 'a list
-  sort: f => l => l.concat ().sort ((x, y) => f (x) (y)),
+  // 'a array -> 'a array
+  clone: l => [...l],
 
-  // ('a -> bool) -> 'a list -> ('a list * 'a list)
-  partition: f => l => [L.filter (f) (l), L.filter (F.neg (f)) (l)],
+  // ('a -> 'a -> int) -> 'a array -> 'a array
+  sort: f => l => A.clone (l).sort ((x, y) => f (x) (y)),
 
-  // 'a list -> 'a list
-  clone: l => L.map (F.id) (l),
+  // ('a -> bool) -> 'a array -> ('a array * 'a array)
+  partition: f => l => [A.filter (f) (l), A.filter (F.neg (f)) (l)],
 
-  // 'a list -> 'a list
+  // 'a array -> 'a array
   uniq: l => {
     var ans = []
-    L.iter (h => L.contains (h) (a) && ans.push (h)) (l)
+    A.iter (h => A.contains (h) (a) && ans.push (h)) (l)
     return ans
   },
 
-  // ('a * 'b) list -> 'a list * 'b list
+  // ('a * 'b) array -> 'a array * 'b array
   unzip: l => {
     var ans = [[], []]
-    L.iteri (i => h => {
+    A.iteri (i => h => {
       ans[0][i] = h[0]
       ans[1][i] = h[1]
     })
     return ans
   },
 
-  ///////////////
-  //           //
-  //  2 Lists  //
-  //           //
-  ///////////////
+  ////////////////
+  //            //
+  //  2 Arrays  //
+  //            //
+  ////////////////
 
-  // 'a list -> 'a list -> 'a list
+  // 'a array -> 'a array -> 'a array
   append: l1 => l2 => [...l1, ...l2],
 
-  // 'a list -> 'b list -> bool
+  // 'a array -> 'b array -> bool
   eq_length: l1 => l2 => l1.length == l2.length,
 
-  // 'a list -> 'b list -> bool
+  // 'a array -> 'b array -> bool
   uneq_length: l1 => l2 => l1.length != l2.length,
 
-  // (int -> 'a -> 'b -> unit) -> 'a list -> 'b list -> unit
-  iteri2: f => l1 => l2 => {
-    F.ex_if (L.unequal_length (l1) (l2))
-    for (var i in l1) {
-      f (i) (l1[i]) (l2[i])
-    }
-  },
+  // (int -> 'a -> 'b -> unit) -> 'a array -> 'b array -> unit
+  iteri2: f => l1 => l2 => A.iteri (i => ([h1, h2]) => f (i) (h1) (h2)) (A.zip (l1) (l2)),
 
-  // ('a -> 'b -> unit) -> 'a list -> 'b list -> unit
-  iter2: f => L.iteri2 (F.const (f)),
+  // ('a -> 'b -> unit) -> 'a array -> 'b array -> unit
+  iter2: f => A.iteri2 (F.const (f)),
 
-  // ('a -> 'b -> 'c -> 'a) -> 'a -> 'b list -> 'c list -> 'a
-  fold2: f => a => l1 => l2 => {
-    L.iter2 (h1 => h2 => a = f (a) (l1[i]) (l2[i]))
-    return a
-  },
+  // ('a -> 'b -> 'c -> 'a) -> 'a -> 'b array -> 'c array -> 'a
+  fold2: f => a => l1 => l2 => A.fold (a => ([h1, h2]) => f (a) (h1) (h2)) (a) (A.zip (l1) (l2)),
 
-  // (int -> 'a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
-  mapi2: f => l1 => l2 => {
-    var ans = []
-    L.iteri2 (i => h1 => h2 => ans[i] = f (i) (h1) (h2)) (l1) (l2)
-    return ans
-  },
+  // (int -> 'a -> 'b -> 'c) -> 'a array -> 'b array -> 'c array
+  mapi2: f => l1 => l2 => A.mapi (i => ([h1, h2]) => f (i) (h1) (h2)) (A.zip (l1) (l2)),
 
-  // ('a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
-  map2: f => L.mapi2 (F.const (f)),
+  // ('a -> 'b -> 'c) -> 'a array -> 'b array -> 'c array
+  map2: f => A.mapi2 (F.const (f)),
 
-  // ('a -> 'b -> bool) -> 'a list -> 'b list -> bool
-  for_all2: f => L.fold2 (a => h1 => h2 => a && f (h1) (h2)) (true),
+  // ('a -> 'b -> bool) -> 'a array -> 'b array -> bool
+  for_all2: f => l1 => l2 => A.for_all (([h1, h2]) => f (h1) (h2)) (A.zip (l1) (l2)),
 
-  // ('a -> 'b -> bool) -> 'a list -> 'b list -> bool
-  exists2: f => L.fold2 (a => h1 => h2 => a || f (h1) (h2)) (false),
+  // ('a -> 'b -> bool) -> 'a array -> 'b array -> bool
+  exists2: f => l1 => l2 => A.exists (([h1, h2]) => f (h1) (h2)) (A.zip (l1) (l2)),
 
-  // 'a list -> 'b list -> ('a * 'b) list
+  // 'a array -> 'b array -> ('a * 'b) array
   zip: l1 => l2 => {
+    F.ex_if (A.uneq_length (l1) (l2))
     var ans = []
-    L.iteri2 (i => h1 => h2 => ans[i] = [h1, h2]) (l1) (l2)
+    for (var i = 0; i < l1.length; i++) {
+      ans[i] = [l1[i], l2[i]]
+    }
     return ans
   },
 
-  // 'a list -> 'a list -> bool
+  // 'a array -> 'a array -> bool
   equals: l1 => l2 => {
-    if (L.uneq_length (l1) (l2)) {
+    if (A.uneq_length (l1) (l2)) {
       return false
     }
-    var ans = true
-    L.iteri (i => h => ans = ans && F['='] (h) (l2[i])) (l1)
-    return ans
+    return A.for_all2 (F['=']) (l1) (l2)
   },
 }
 
@@ -423,21 +400,21 @@ var D = {
   // 'a -> ('a, 'b) dictionary -> 'b
   get: x => d => d[x],
 
-  // ('a * 'b) list -> ('a, 'b) dictionary
+  // ('a * 'b) array -> ('a, 'b) dictionary
   create: l => {
     var ans = {}
-    L.iter (h => ans[h[0]] = h[1]) (l)
+    A.iter (h => ans[h[0]] = h[1]) (l)
     return ans
   },
 
-  // ('a, 'b) dictionary -> 'a list
+  // ('a, 'b) dictionary -> 'a array
   keys: d => Object.keys (d),
 
-  // ('a, 'b) dictionary -> 'b list
-  vals: d => L.map (F.swap (D.get) (d)) (D.keys (d)),
+  // ('a, 'b) dictionary -> 'b array
+  vals: d => A.map (F.swap (D.get) (d)) (D.keys (d)),
 
-  // ('a, 'b) dictionary -> ('a * 'b) list
-  pairs: d => L.map (h => [h, d[h]]) (D.keys (d)),
+  // ('a, 'b) dictionary -> ('a * 'b) array
+  pairs: d => A.map (h => [h, d[h]]) (D.keys (d)),
 
   // ('a, 'b) dictionary -> ('a, 'b) dictionary
   bind: o => {
@@ -457,13 +434,13 @@ var D = {
   freeze_bind: d => D.freeze (D.bind (d)),
 
   // ('a -> 'b -> unit) -> ('a, 'b) dictionary -> unit
-  iterk: f => d => L.iter (h => f (h) (d[h])) (D.keys (d)),
+  iterk: f => d => A.iter (h => f (h) (d[h])) (D.keys (d)),
 
   // ('a -> unit) -> 'b, 'a dictionary -> unit
   iter: f => D.iterk (F.const (f)),
 
-  // ('a -> 'b -> 'a) -> 'a -> ('c, 'b) list -> 'a
-  fold: f => a => d => (L.iter (h => a = f (a) (h)) (D.vals (d)), a),
+  // ('a -> 'b -> 'a) -> 'a -> ('c, 'b) array -> 'a
+  fold: f => a => d => (A.iter (h => a = f (a) (h)) (D.vals (d)), a),
 
   // ('a -> 'b -> 'c) -> ('a, 'b) dictionary -> 'a, 'c dictionary
   mapk: f => d => {
@@ -476,29 +453,32 @@ var D = {
   map: f => D.mapk (F.const (f)),
 
   // ('a -> bool) -> 'b, 'a dictionary -> 'a
-  find: f => d => F.ex_if (! L.contains (f) (D.vals (d))) || L.find (f) (D.vals (d)),
+  find: f => d => F.ex_if (! A.contains (f) (D.vals (d))) || A.find (f) (D.vals (d)),
 
-  // ('a -> 'b -> bool) -> 'a list -> 'a list
+  // ('a -> 'b -> bool) -> 'a array -> 'a array
   filterk: f => d => {
     var ans = {}
     D.iterk (k => v => f (k) (v) && (ans[k] = d[v])) (d)
     return ans
   },
 
-  // ('a -> bool) -> 'a list -> 'a list
+  // ('a -> bool) -> 'a array -> 'a array
   filter: f => D.filterk (F.const (f)),
 
   // ('a -> bool) -> 'b, 'a dictionary -> bool
-  for_all: f => d => L.forall (f) (D.vals (d)),
+  for_all: f => d => A.forall (f) (D.vals (d)),
 
   // ('a -> bool) -> 'b, 'a dictionary -> bool
-  exists: f => d => L.exists (f) (D.vals (d)),
+  exists: f => d => A.exists (f) (D.vals (d)),
 
   // 'a -> 'b, 'a dictionary -> bool
-  contains: x => d => L.contains (x) (D.vals (d)),
+  contains: x => d => A.contains (x) (D.vals (d)),
+
+  // 'a -> 'a, 'b dictionary -> bool
+  containsk: x => d => A.contains (x) (D.keys (d)),
 
   // ('a, 'b) dictionary -> int
-  length: d => L.length (D.keys (d)),
+  length: d => A.length (D.keys (d)),
 
   // ('a -> bool) -> 'b, 'a dictionary -> (('b, 'a) dictionary * ('b, 'a) dictionary)
   partition: f => d => [D.filter (f) (d), D.filter (F.neg (f)) (d)],
@@ -514,11 +494,11 @@ var D = {
     return ans
   },
 
-  // ('a, 'b) dictionary -> 'a list -> ('a, 'b) dictionary
+  // ('a, 'b) dictionary -> 'a array -> ('a, 'b) dictionary
   delete: d => l => {
     var ans = {}
     for (k in d) {
-      if (! L.contains (k)) {
+      if (! A.contains (k)) {
         ans[k] = d[k]
       }
     }
@@ -527,7 +507,7 @@ var D = {
 
   // ('a, 'b) dictionary -> ('a, 'b) dictionary -> bool
   equals: d1 => d2 => {
-    if (! L.equals (D.keys (d1)) (D.keys (d2))) {
+    if (! A.equals (D.keys (d1)) (D.keys (d2))) {
       return false
     }
     var ans = true
@@ -555,7 +535,7 @@ var S = {
   // string -> string -> int
   compare: s1 => s2 => s1.localeCompare (s2),
 
-  // string -> regex -> string list
+  // string -> regex -> string array
   match: r => s => s.match (r),
 
   // regex -> string -> string -> string
@@ -567,7 +547,7 @@ var S = {
   // regex -> string -> int
   search: r => s => s.search (r),
 
-  // regex -> string -> string list
+  // regex -> string -> string array
   split: r => s => s.split (r),
 
   // string -> string
@@ -582,27 +562,49 @@ var S = {
   // string -> string -> bool
   equals: s1 => s2 => s1 === s2,
 
-  // string -> string list -> string
-  join: s => L.reduce (a => h => a + s + h),
+  // string -> string array -> string
+  join: s => A.reduce (a => h => a + s + h),
 }
 
 var library = {
-  F: F,
-  L: L,
-  D: D,
-  S: S,
+  F,
+  A,
+  D,
+  S,
+  L: A,
+  M: D,
 }
 
 var globalize = () => {
   D.iterk (k => v => {
-    if (typeof window != 'undefined') {
+    if (typeof window != 'undefined')
       window[k] = v
-    }
-    else if (typeof global != 'undefined') {
+    else if (typeof global != 'undefined')
       global[k] = v
-    }
   }) (library)
 }
 
+var short_composition = () => {
+  // ? -> ?
+  var fs = []
+  var valueOf = Function.prototype.valueOf
+  Function.prototype.valueOf = hack (fs)
+  F.c = f => {
+    var fs2 = A.clone (fs)
+    fs.length = 0
+    return F.rcomp (fs2.length ? fs2 : [f || F.id])
+  }
+}
+
 if (typeof exports != 'undefined')
-  module.exports = D.extend (library) ({globalize: globalize})
+  module.exports = options => {
+    F.p ([
+      ['globalize', globalize],
+      ['short F.c', short_composition],
+    ]) (
+      A.filter (F.c () (A.get (0) >> F.swap (A.contains) (options)))
+      >> A.map (A.get (1))
+      >> A.iter (F.exec)
+    )
+    return library
+  }

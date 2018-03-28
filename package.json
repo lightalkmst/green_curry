@@ -4,7 +4,7 @@
   "description": "Curried functional programming library",
   "main": "green_curry.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jasmine JASMINE_CONFIG_PATH=jasmine.json",
     "start": "node green_curry.js"
   },
   "contributors": [
@@ -24,5 +24,8 @@
     "type": "git",
     "url": "https://github.com/lightalkmst/green_curry.git"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "jasmine": "^3.1.0"
+  }
 }

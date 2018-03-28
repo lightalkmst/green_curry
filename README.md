@@ -8,7 +8,7 @@ The contents of this package are organized into submodules:
 
 [F: general functions and constants](https://github.com/lightalkmst/green_curry#f-general-functions-and-constants)
 
-[L: lists (arrays)](https://github.com/lightalkmst/green_curry#l-1-list-and-2-lists-functions)
+[A: arrays](https://github.com/lightalkmst/green_curry#l-1-array-and-2-arrays-functions)
 
 [D: dictionaries (objects)](https://github.com/lightalkmst/green_curry#d-dictionary-functions)
 
@@ -20,61 +20,70 @@ I believe that what's held JavaScript back from being adopted as a functional pr
 
 Here is an example:
 ```javascript
-// summing up a list
-function sum_list(list) {
+// summing up a array
+function sum_array(array) {
   var ans = 0;
-  for (var i = 0; i < list.length; i++) {
-    ans += list[i];
+  for (var i = 0; i < array.length; i++) {
+    ans += array[i];
   }
   return ans;
 }
 
-// summing up a list of lists
-function sum_lists(list) {
+// summing up a array of arrays
+function sum_arrays(array) {
   var ans = 0;
-  for (var i = 0; i < list.length; i++) {
-    ans += sum_list(list[i]);
+  for (var i = 0; i < array.length; i++) {
+    ans += sum_array(array[i]);
   }
   return ans;
 }
 
-// summing up a list of lists of lists
-function sum_lists2(list) {
+// summing up a array of arrays of arrays
+function sum_arrays2(array) {
   var ans = 0;
-  for (var i = 0; i < list.length; i++) {
-    ans += sum_lists(list[i]);
+  for (var i = 0; i < array.length; i++) {
+    ans += sum_arrays(array[i]);
   }
   return ans;
 }
 ```
 The above code, functionally:
 ```javascript
-const green_curry = require ('green_curry')
-green_curry.globalize ()
+const green_curry = require ('green_curry') (['globalize', 'short F.c']})
 
-// summing up a list
-const sum_list = L.fold (F['+']) (0)
+// summing up a array
+const sum_array = A.fold (F['+']) (0)
 
-// summing up a list of lists
-const sum_lists = F.c () (L.map (sum_list) >> sum_list)
+// summing up a array of arrays
+const sum_arrays = F.c (A.map (sum_array) >> sum_array)
 
-// summing up a list of lists of lists
-const sum_lists2 = F.c () (L.map (sum_lists) >> sum_list)
+// summing up a array of arrays of arrays
+const sum_arrays2 = F.c (A.map (sum_arrays) >> sum_array)
 ```
 An understanding of the typed lambda calculus, currying, JavaScript type system, closures, and mutability are recommended for effective use of this library. All functions are free of self-references, allowing their safe use as first-class functions. All functions are pure, except globalize, F.c, and F.p.
 
-## globalize : unit -> unit
+## Initializer options
+Initializer options are compatible with each other
+
+### globalize
 Pulls the included submodules into global scope to obviate the need for fully-qualifying each resource
 
 All examples on this page will assume this has already been called
 
 (note: works both in-server and in-browser)
 ```javascript
-var green_curry = require ('green_curry')
-green_curry.F.log ('Hint: 3?') // prints 'Hint: 3?'
-green_curry.globalize () // raises green_curry library to global scope
+var green_curry = require ('green_curry') (['globalize'])
 F.log ('Hint: 3?') // prints 'Hint: 3?'
 ```
+
+### short F.c
+Removes the need for the first call to F.c
+```javascript
+var green_curry = require ('green_curry') (['short F.c'])
+var f = green_curry.F.c ((x => `Hint: ${x}?`) >> green_curry.F.log)
+f ('3') // prints 'Hint: 3?'
+```
+
 ## F (general functions and constants)
 (note: regard the operators as prefix notation)
 
@@ -109,6 +118,8 @@ A wrapper for eval that will always operate within calling scope
 An unaliased call to eval will operate within the calling scope
 
 An aliased call to eval will operate at the global scope
+
+Operates in lazy mode
 ```javascript
 var a = 'Hint: 3?'
 eval ('a') // 'Hint: 3?'
@@ -226,7 +237,7 @@ Returns a predicate that is a union of f and g
 #### F.inter : (f: 'a -> bool) -> (g: 'a -> bool) -> ('a -> bool)
 Returns a predicate that is an intersection of f and g
 
-#### F.try : (b: bool) -> (fs: (unit -> 'a) list) -> 'a
+#### F.try : (b: bool) -> (fs: (unit -> 'a) array) -> 'a
 Iteratively calls each function in fs until one returns without an exception and returns the result
 
 If b, then prints each exception to console
@@ -242,15 +253,15 @@ Calls f with x and returns x
 
 (note: for side-effecting when you want to retain the reference)
 
-#### F.rcomp : (fs: (? -> ?) list) -> (? -> ?)
+#### F.rcomp : (fs: (? -> ?) array) -> (? -> ?)
 Reverse function composes the functions in fs
 
-#### F.c : unit -> (fs: (? -> ?) list) -> (? -> ?)
+#### F.c : unit -> (fs: (? -> ?) array) -> (? -> ?)
 Reverse function composes fs with a temporary DSL
 
-(note: requires at least two functions to be composed to work properly)
-
 (note: this is safe for nested usage in other instances of F.c and F.p)
+
+(note: works by overriding Function.valueOf)
 ```javascript
 var f = F.c () (
     F.tap (F.log)
@@ -259,12 +270,12 @@ var f = F.c () (
 )
 f ('Hint: 3?') // true // prints 'Hint: 3?' then 'true'
 ```
-#### F.p : (x: ?) -> (fs: (? -> ?) list) -> ?
+#### F.p : (x: ?) -> (fs: (? -> ?) array) -> ?
 Reverse function composes fs with a temporary DSL and calls that with x and returns the result
 
-(note: requires at least two functions to be composed to work properly)
-
 (note: this is safe for nested usage in other instances of F.c and F.p)
+
+(note: works by overriding Function.valueOf)
 ```javascript
 F.p ('Hint: 3?') (
     F.tap (F.log)
@@ -286,134 +297,134 @@ Returns a version of f that does nothing and returns undefined until the xth tim
 #### F.before : (x: num) -> (f: 'a -> 'b') -> ('a -> unit/'b)
 Returns a version of f that operates normally until the xth time when it starts doing nothing and returns undefined
 
-## L (1 list and 2 lists functions)
-(note: lists are assumed to be dense, meaning all data is contiguous)
+## L (1 array and 2 arrays functions)
+(note: arrays are assumed to be dense, meaning all data is contiguous)
 
 (note: all respective orders are preserved, except in obvious cases)
 
-### 1 list functions
+### 1 array functions
 
-#### L.cons : (x: 'a) -> (l: 'a list) -> 'a list
+#### A.cons : (x: 'a) -> (l: 'a array) -> 'a array
 Prepends x to l
 
-#### L.head : (l: 'a list) -> 'a
+#### A.head : (l: 'a array) -> 'a
 Throws an exception if l is empty and returns the first element of l otherwise
 
-#### L.tail : (l: 'a list) -> 'a list
+#### A.tail : (l: 'a array) -> 'a array
 Throws an exception if l is empty and returns all elements of l except the first otherwise
 
-#### L.length : (l: 'a list) -> num
+#### A.length : (l: 'a array) -> num
 Returns the length of l
 
-#### L.is_empty : (l: 'a list) -> bool
+#### A.is_empty : (l: 'a array) -> bool
 Returns true if l is empty and false otherwise
 
-#### L.get : (x: num) -> (l: 'a list) -> 'a
+#### A.get : (x: num) -> (l: 'a array) -> 'a
 Returns the xth element in l if it exists and returns undefined otherwise
 
-#### L.range : (x: num) -> (y: num) -> num list
-Returns the numbers between x and y, double inclusive, if x is less than or equal to y and an empty list otherwise
+#### A.range : (x: num) -> (y: num) -> num array
+Returns the numbers between x and y, double inclusive, if x is less than or equal to y and an empty array otherwise
 
-#### L.create : (x: num) -> (y: 'a) -> 'a list
+#### A.create : (x: num) -> (y: 'a) -> 'a array
 Returns y repeated x times
 
-#### L.init : (x: num) -> (f: int -> 'a) -> 'a list
-Returns a list of x elements generated by f passed each index
+#### A.init : (x: num) -> (f: int -> 'a) -> 'a array
+Returns a array of x elements generated by f passed each index
 
-#### L.rev : (l: 'a list) -> 'a list
+#### A.rev : (l: 'a array) -> 'a array
 Returns l with the elements in reverse order
 
-#### L.iter : (f: 'a -> unit) -> (l: 'a list) -> unit
+#### A.iter : (f: 'a -> unit) -> (l: 'a array) -> unit
 Calls f on each element in l
 
-#### L.iteri : (f: int -> 'a -> unit) -> (l: 'a list) -> unit
-Same as L.iter, except additionally passes the index as well
+#### A.iteri : (f: int -> 'a -> unit) -> (l: 'a array) -> unit
+Same as A.iter, except additionally passes the index as well
 
-#### L.fold : (f: 'a -> 'b -> 'a) -> (a: 'a) -> (l: 'b list) -> 'a
+#### A.fold : (f: 'a -> 'b -> 'a) -> (a: 'a) -> (l: 'b array) -> 'a
 Calls f on the accumulator, initialized at a, and each element of l and returns the result
 
-#### L.reduce : (f: 'a -> 'a -> 'a) -> (l: 'a list) -> 'a
-Throws an exception is l is empty and is the same as L.fold with the accumulator initialized to the first element in l otherwise
+#### A.reduce : (f: 'a -> 'a -> 'a) -> (l: 'a array) -> 'a
+Throws an exception is l is empty and is the same as A.fold with the accumulator initialized to the first element in l otherwise
 
-#### L.scan : (f: 'a -> 'b -> 'a) -> (a: 'a) -> (l: 'b list) -> 'a list
-Same as L.fold, but additionally returns all of the partial sums
+#### A.scan : (f: 'a -> 'b -> 'a) -> (a: 'a) -> (l: 'b array) -> 'a array
+Same as A.fold, but additionally returns all of the partial sums
 
-#### L.map : (f: 'a -> 'b) -> (l: 'a list) -> 'b list
+#### A.map : (f: 'a -> 'b) -> (l: 'a array) -> 'b array
 Returns l with each element transformed by f
 
-#### L.mapi : (f: int -> 'a -> 'b) -> (l: 'a list) -> 'b list
-Same as L.map, but additionally passes the index as well
+#### A.mapi : (f: int -> 'a -> 'b) -> (l: 'a array) -> 'b array
+Same as A.map, but additionally passes the index as well
 
-#### L.find : (f: 'a -> bool) -> (l: 'a list) -> 'a
+#### A.find : (f: 'a -> bool) -> (l: 'a array) -> 'a
 Returns the first element in l for which f returns true and throws F.e if one does not exist
 
-#### L.pick : (f: 'a -> unit/'b) -> (l: 'a list) -> unit/'b
+#### A.pick : (f: 'a -> unit/'b) -> (l: 'a array) -> unit/'b
 Returns the result of f for the first element in l for which f does not return undefined and throws F.e if one does not exist
 
-#### L.filter : (f: 'a -> bool) -> (l: 'a list) -> 'a list
+#### A.filter : (f: 'a -> bool) -> (l: 'a array) -> 'a array
 Returns l without the elements for which f returns false
 
-#### L.for_all : (f: 'a -> bool) -> (l: 'a list) -> bool
+#### A.for_all : (f: 'a -> bool) -> (l: 'a array) -> bool
 Returns if f is true for all elements in l, vacuously true
 
-#### L.exists : (f: 'a -> bool) -> (l: 'a list) -> bool
+#### A.exists : (f: 'a -> bool) -> (l: 'a array) -> bool
 Returns if f is true for any element in l, vacuously false
 
-#### L.contains : (x: 'a) -> (l: 'a list) -> bool
+#### A.contains : (x: 'a) -> (l: 'a array) -> bool
 Returns if any element in l is equal to x
 
-#### L.sort : (f: 'a -> 'a -> int) -> (l: 'a list) -> 'a list
+#### A.sort : (f: 'a -> 'a -> int) -> (l: 'a array) -> 'a array
 Returns l sorted by f determined by normal comparator standards
 
-#### L.partition : (f: 'a -> bool) -> (l: 'a list) -> ('a list * 'a list)
-Returns l into two lists, the first containing all elements for which f is true and the second containing everything else
+#### A.partition : (f: 'a -> bool) -> (l: 'a array) -> ('a array * 'a array)
+Returns l into two arrays, the first containing all elements for which f is true and the second containing everything else
 
-#### L.clone: (l: 'a list) -> 'a list
+#### A.clone: (l: 'a array) -> 'a array
 Returns a shallow copy of l
 
-#### L.uniq : (l: 'a list) -> 'a list
+#### A.uniq : (l: 'a array) -> 'a array
 Returns l with duplicates removed
 
-#### L.unzip : (l: ('a * 'b) list) -> 'a list * 'b list
-Returns the lists of the first element of each element of l and the second element of each element of l
+#### A.unzip : (l: ('a * 'b) array) -> 'a array * 'b array
+Returns the arrays of the first element of each element of l and the second element of each element of l
 
 (note: this function does not enforce density)
 
-### 2 list functions
-#### L.append : (l1: 'a list) -> (l2: 'a list) -> 'a list
+### 2 array functions
+#### A.append : (l1: 'a array) -> (l2: 'a array) -> 'a array
 Returns l1 prepended to l2
 
-#### L.eq_length : (l1: 'a list) -> (l2: 'b list) -> bool
+#### A.eq_length : (l1: 'a array) -> (l2: 'b array) -> bool
 Returns if l1 and l2 have equal lengths
 
-#### L.uneq_length : (l1: 'a list) -> (l2: 'b list) -> bool
+#### A.uneq_length : (l1: 'a array) -> (l2: 'b array) -> bool
 Returns if l1 and l2 have unequal lengths
 
-#### L.iter2 : (f: 'a -> 'b -> unit) -> (l1: 'a list) -> (l2: 'b list) -> unit
-Throws exception F.e if l1 and l2 have unequal lengths and is the same as L.iter, but with corresponding elements of each list passed in otherwise
+#### A.iter2 : (f: 'a -> 'b -> unit) -> (l1: 'a array) -> (l2: 'b array) -> unit
+Throws exception F.e if l1 and l2 have unequal lengths and is the same as A.iter, but with corresponding elements of each array passed in otherwise
 
-#### L.iteri2 : (f: int -> 'a -> 'b -> unit) -> (l1: 'a list) -> (l2: 'b list) -> unit
-Same as L.iter2, except additionally passing the index
+#### A.iteri2 : (f: int -> 'a -> 'b -> unit) -> (l1: 'a array) -> (l2: 'b array) -> unit
+Same as A.iter2, except additionally passing the index
 
-#### L.fold2 : (f: 'a -> 'b -> 'c -> 'a) -> (a: 'a) -> (l1: 'b list) -> (l2: 'c list) -> 'a
-Throws exception F.e if l1 and l2 have unequal lengths and is the same as L.fold, but with corresponding elements of each list passed in otherwise
+#### A.fold2 : (f: 'a -> 'b -> 'c -> 'a) -> (a: 'a) -> (l1: 'b array) -> (l2: 'c array) -> 'a
+Throws exception F.e if l1 and l2 have unequal lengths and is the same as A.fold, but with corresponding elements of each array passed in otherwise
 
-#### L.map2 : (f: 'a -> 'b -> 'c) -> (l1: 'a list) -> (l2: 'b list) -> 'c list
-Throws exception F.e if l1 and l2 have unequal lengths and is the same as L.map, but with corresponding elements of each list passed in otherwise
+#### A.map2 : (f: 'a -> 'b -> 'c) -> (l1: 'a array) -> (l2: 'b array) -> 'c array
+Throws exception F.e if l1 and l2 have unequal lengths and is the same as A.map, but with corresponding elements of each array passed in otherwise
 
-#### L.mapi2 : (f: int -> 'a -> 'b -> 'c) -> (l1: 'a list) -> (l2: 'b list) -> 'c list
-Throws exception F.e if l1 and l2 have unequal lengths and is the same as L.mapi, but with corresponding elements of each list passed in otherwise
+#### A.mapi2 : (f: int -> 'a -> 'b -> 'c) -> (l1: 'a array) -> (l2: 'b array) -> 'c array
+Throws exception F.e if l1 and l2 have unequal lengths and is the same as A.mapi, but with corresponding elements of each array passed in otherwise
 
-#### L.for_all2 : (f: 'a -> 'b -> bool) -> (l1: 'a list) -> (l2: 'b list) -> bool
-Throws exception F.e if l1 and l2 have unequal lengths and is the same as L.for_all, but with corresponding elements of each list passed in otherwise
+#### A.for_all2 : (f: 'a -> 'b -> bool) -> (l1: 'a array) -> (l2: 'b array) -> bool
+Throws exception F.e if l1 and l2 have unequal lengths and is the same as A.for_all, but with corresponding elements of each array passed in otherwise
 
-#### L.exists2 : (f: 'a -> 'b -> bool) -> (l1: 'a list) -> (l2: 'b list) -> bool
-Throws exception F.e if l1 and l2 have unequal lengths and is the same as L.exists, but with corresponding elements of each list passed in otherwise
+#### A.exists2 : (f: 'a -> 'b -> bool) -> (l1: 'a array) -> (l2: 'b array) -> bool
+Throws exception F.e if l1 and l2 have unequal lengths and is the same as A.exists, but with corresponding elements of each array passed in otherwise
 
-#### L.zip : 'a list -> 'b list -> ('a * 'b) list
+#### A.zip : 'a array -> 'b array -> ('a * 'b) array
 Throws exception F.e if l1 and l2 have unequal lengths and returns the corresponding elements of l1 and l2 combined
 
-#### L.equals : (x: 'a list) -> (y: 'a list) -> bool
+#### A.equals : (x: 'a array) -> (y: 'a array) -> bool
 Deep comparison of x and y
 
 ## D (dictionary functions)
@@ -423,16 +434,16 @@ Returns if d is empty
 #### D.get : (k: 'a) -> (d: 'a, 'b dictionary) -> 'b
 Returns the element in d with key k
 
-#### D.create : (l: ('a * 'b) list) -> 'a, 'b dictionary
+#### D.create : (l: ('a * 'b) array) -> 'a, 'b dictionary
 Returns the dictionary with pairs of each element with the first element as the key and the second element as the value
 
-#### D.keys : (d: 'a, 'b dictionary) -> 'a list
+#### D.keys : (d: 'a, 'b dictionary) -> 'a array
 Returns the keys of d
 
-#### D.vals : (d: 'a, 'b dictionary) -> 'b list
+#### D.vals : (d: 'a, 'b dictionary) -> 'b array
 Returns the values of d
 
-#### D.pairs : (d: 'a, 'b dictionary) -> ('a * 'b) list
+#### D.pairs : (d: 'a, 'b dictionary) -> ('a * 'b) array
 Returns the key, value pairs of d
 
 #### D.bind : (d: 'a, 'b dictionary) -> 'a, 'b dictionary
@@ -447,48 +458,51 @@ Freezes d and returns d
 Same as D.bind then D.freeze
 
 #### D.iter : (f: 'a -> unit) -> (d: 'b, 'a dictionary) -> unit
-Same as L.iter on the values of d, except with keys instead of indices
+Same as A.iter on the values of d, except with keys instead of indices
 
 #### D.iterk : (f: 'a -> 'b -> unit) -> (d: 'a, 'b dictionary) -> unit
 Same as D.iter, except additionally passing the key
 
 #### D.fold : (f: 'a -> 'b -> 'a) -> (a: 'a) -> (d: 'c, 'b dictionary) -> 'a
-Same as L.fold on the values of d
+Same as A.fold on the values of d
 
 #### D.map : (f: 'a -> 'b) -> (d: 'c, 'a dictionary) -> 'c, 'b dictionary
-Same as L.map on the values of d
+Same as A.map on the values of d
 
 #### D.mapk : (f: 'a -> 'b -> 'c) -> (d: 'a, 'b dictionary) -> 'a, 'c dictionary
 Same as D.map, except additionally passing the key
 
 #### D.find : (f: 'a -> bool) -> (d: 'b, 'a dictionary) -> 'a
-Same as L.find on the values of d
+Same as A.find on the values of d
 
-#### D.filter : (f: 'a -> bool) -> (d: 'a list) -> 'a list
-Same as L.filter on the values of d
+#### D.filter : (f: 'a -> bool) -> (d: 'a array) -> 'a array
+Same as A.filter on the values of d
 
-#### D.filterk : (f: 'a -> 'b -> bool) -> (d: 'a list) -> 'a list
+#### D.filterk : (f: 'a -> 'b -> bool) -> (d: 'a array) -> 'a array
 Same as D.filter, except additionally passed the key
 
 #### D.for_all : (f: 'a -> bool) -> (d: 'b, 'a dictionary) -> bool
-Same as L.for_all on the values of d
+Same as A.for_all on the values of d
 
 #### D.exists : (f: 'a -> bool) -> (d: 'b, 'a dictionary) -> bool
-Same as L.exists on the values of d
+Same as A.exists on the values of d
 
 #### D.contains : (x: 'a) -> (d: 'b, 'a dictionary) -> bool
-Same as L.contains on the values of d
+Same as A.contains on the values of d
+
+#### D.containsk : (x: 'a) -> (d: 'a, 'b dictionary) -> bool
+Same as A.contains on the keys of d
 
 #### D.length : (d: 'a, 'b dictionary) -> num
 Returns the number of key, value pairs in d
 
 #### D.partition : (f: 'a -> bool) -> (d: 'b, 'a dictionary) -> (('b, 'a) dictionary * ('b, 'a) dictionary)
-Same as L.partition on the values of d
+Same as A.partition on the values of d
 
 #### D.extend : (d1: 'a, 'b dictionary) -> (d2: 'a, 'b dictionary) -> 'a, 'b dictionary
 Returns d1 overlaid by d2
 
-#### D.delete : (d: 'a, 'b dictionary) -> (l: 'a list) -> 'a, 'b dictionary
+#### D.delete : (d: 'a, 'b dictionary) -> (l: 'a array) -> 'a, 'b dictionary
 Returns d without the pairs with keys in l
 
 #### D.equals : (d1: ('a, 'b) dictionary) -> (d2: ('a, 'b) dictionary) -> bool
@@ -513,7 +527,7 @@ Returns if x appears at least once in y
 #### S.compare : (x: string) -> (y: string) -> num
 Follows normal comparator rules for strings for comparing x to y
 
-#### S.match : (r: regex) -> (x: string) -> string list
+#### S.match : (r: regex) -> (x: string) -> string array
 Returns the match and capture groups of r in x if x matches r and null otherwise
 
 #### S.replace : (r: regex) -> (x: string) -> (y: string) -> string
@@ -525,8 +539,8 @@ Same as S.index, except with the last occurence
 #### S.search : (r: regex) -> (x: string) -> num
 Returns the first index that x matches r
 
-#### S.split : (r: regex) -> (x: string) -> string list
-Returns a list of the substrings of x split by r
+#### S.split : (r: regex) -> (x: string) -> string array
+Returns a array of the substrings of x split by r
 
 #### S.lower : (x: string) -> string
 Returns x with all characters lowercase
