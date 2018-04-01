@@ -185,11 +185,9 @@ var F = {
     var memo = []
     return x => {
       var len = memo.length
-      for (var i = 0; i < len; i++) {
-        if (memo[i][0] === x) {
+      for (var i = 0; i < len; i++)
+        if (memo[i][0] === x)
           return memo[i][1]
-        }
-      }
       memo[len] = [x, f (x)]
       return memo[len][1]
     }
@@ -252,9 +250,8 @@ var A = {
   // (int -> 'a -> unit) -> 'a array -> unit
   iteri: f => l => {
     var len = l.length
-    for (var i = 0; i < len; i++) {
+    for (var i = 0; i < len; i++)
       f (i) (l[i])
-    }
   },
 
   // ('a -> unit) -> 'a array -> unit
@@ -269,7 +266,7 @@ var A = {
   // ('a -> 'b -> 'a) -> 'a -> 'b array -> 'a array
   scan: f => a => l => {
     var ans = [a]
-    A.iteri (i => h => ans[i + 1] = a = f (a) (h)) (l)
+    A.iteri (i => h => ans.push (a = f (a) (h))) (l)
     return ans
   },
 
@@ -285,7 +282,7 @@ var A = {
 
   // ('a -> bool) -> 'a array -> 'a
   find: f => l => {
-    var ans = l.find (f)
+    var ans = l.find (x => f (x))
     if (ans === undefined)
       throw F.e
     return ans
@@ -295,13 +292,13 @@ var A = {
   pick: f => l => f (A.find (x => f (x) != undefined) (l)),
 
   // ('a -> bool) -> 'a array -> 'a array
-  filter: f => l => l.filter (f),
+  filter: f => l => l.filter (x => f (x)),
 
   // ('a -> bool) -> 'a array -> bool
-  for_all: f => l => l.every (f),
+  for_all: f => l => l.every (x => f (x)),
 
   // ('a -> bool) -> 'a array -> bool
-  exists: f => l => l.some (f),
+  exists: f => l => l.some (x => f (x)),
 
   // 'a -> 'a array -> bool
   contains: x => l => A.exists (F['='] (x)) (l),
@@ -372,19 +369,13 @@ var A = {
   zip: l1 => l2 => {
     F.ex_if (A.uneq_length (l1) (l2))
     var ans = []
-    for (var i = 0; i < l1.length; i++) {
-      ans[i] = [l1[i], l2[i]]
-    }
+    for (var i = 0; i < l1.length; i++)
+      ans.push ([l1[i], l2[i]])
     return ans
   },
 
   // 'a array -> 'a array -> bool
-  equals: l1 => l2 => {
-    if (A.uneq_length (l1) (l2)) {
-      return false
-    }
-    return A.for_all2 (F['=']) (l1) (l2)
-  },
+  equals: l1 => l2 => ! A.uneq_length (l1) (l2) && A.for_all2 (F['=']) (l1) (l2),
 }
 
 var D = {
@@ -395,7 +386,7 @@ var D = {
   //////////////////
 
   // ('a, 'b) dictionary -> bool
-  is_empty: d => d.keys ().length == 0,
+  is_empty: d => ! D.keys (d).length,
 
   // 'a -> ('a, 'b) dictionary -> 'b
   get: x => d => d[x],
@@ -419,11 +410,8 @@ var D = {
   // ('a, 'b) dictionary -> ('a, 'b) dictionary
   bind: o => {
     var ans = {}
-    for (var k in o) {
-      typeof o[k] == 'function'
-      ? (ans[k] = o[k].bind (ans))
-      : (ans[k] = o[k])
-    }
+    for (var k in o)
+      ans[k] = typeof o[k] == 'function' ? o[k].bind (ans) : o[k]
     return ans
   },
 
@@ -481,7 +469,11 @@ var D = {
   length: d => A.length (D.keys (d)),
 
   // ('a -> bool) -> 'b, 'a dictionary -> (('b, 'a) dictionary * ('b, 'a) dictionary)
-  partition: f => d => [D.filter (f) (d), D.filter (F.neg (f)) (d)],
+  partition: f => d => {
+    var ans = [{}, {}]
+    D.iterk (k => v => f (v) ? ans[0][k] = v : ans[1][k] = v)
+    return ans
+  },
 
   // ('a, 'b) dictionary -> ('a, 'b) dictionary
   clone: d => D.map (F.id) (d),
@@ -495,21 +487,27 @@ var D = {
   },
 
   // ('a, 'b) dictionary -> 'a array -> ('a, 'b) dictionary
-  delete: d => l => {
+  copy: l => d => {
     var ans = {}
-    for (k in d) {
-      if (! A.contains (k)) {
+    for (k in d)
+      if (A.contains (k))
         ans[k] = d[k]
-      }
-    }
+    return ans
+  },
+
+  // ('a, 'b) dictionary -> 'a array -> ('a, 'b) dictionary
+  delete: l => d => {
+    var ans = {}
+    for (k in d)
+      if (! A.contains (k))
+        ans[k] = d[k]
     return ans
   },
 
   // ('a, 'b) dictionary -> ('a, 'b) dictionary -> bool
   equals: d1 => d2 => {
-    if (! A.equals (D.keys (d1)) (D.keys (d2))) {
+    if (! A.equals (D.keys (d1)) (D.keys (d2)))
       return false
-    }
     var ans = true
     D.iterk (k => v => ans = ans && F['='] (v) (d2[k])) (d1)
     return ans
@@ -524,7 +522,7 @@ var S = {
   get: n => s => s[n],
 
   // int -> int -> string -> string
-  substr: x => y => s => s.substring (x, y < 0 ? s.length - y + 1 : y),
+  substr: x => y => s => s.substring (x, y < 0 ? s.length + y + 1 : y),
 
   // string -> string -> int
   index: s1 => s2 => s2.indexOf (s1),
@@ -563,7 +561,7 @@ var S = {
   equals: s1 => s2 => s1 === s2,
 
   // string -> string array -> string
-  join: s => A.reduce (a => h => a + s + h),
+  join: s => A.reduce (a => h => `${a}${s}${h}`),
 }
 
 var library = {

@@ -14,9 +14,7 @@ The contents of this package are organized into submodules:
 
 [S: strings](https://github.com/lightalkmst/green_curry#s-string-functions)
 
-This library is to provide support for functional programming. Though some other libraries exist that expose functional programming in JavaScript, they take a partially object-oriented approach that dilutes a lot of the value of a functional style. Though this mixture can be useful, those libraries have not closed the gap caused by some of JavaScript's idiosyncracies.
-
-I believe that what's held JavaScript back from being adopted as a functional programming language is its lack of a purely functional library. Functional programming's rewards are reaped best when currying is available, enabling point-free form to increase the abstractness and modularity of the code. One of the strengths of functional programming is that a vast majority of boilerplate is already replaced by higher-order library functions. As these functions are all very general, common boilerplate is replaced with simple functions that leave just your desired logic in place. Additionally, since higher-order functions are fueled by inversion of control, the same functions are used and recycled; they may never become outdated.
+This library is to provide support for pure functional programming by providing convenience functions in curried form.
 
 Here is an example:
 ```javascript
@@ -501,6 +499,9 @@ Same as A.partition on the values of d
 
 #### D.extend : (d1: 'a, 'b dictionary) -> (d2: 'a, 'b dictionary) -> 'a, 'b dictionary
 Returns d1 overlaid by d2
+
+#### D.copy : (d: 'a, 'b dictionary) -> (l: 'a array) -> 'a, 'b dictionary
+Returns d with only the pairs with keys in l
 
 #### D.delete : (d: 'a, 'b dictionary) -> (l: 'a array) -> 'a, 'b dictionary
 Returns d without the pairs with keys in l
