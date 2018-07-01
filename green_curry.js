@@ -561,7 +561,7 @@ var S = {
   equals: s1 => s2 => s1 === s2,
 
   // string -> string array -> string
-  join: s => A.reduce (a => h => `${a}${s}${h}`),
+  join: s => ss => ss.join (s),
 }
 
 var library = {
