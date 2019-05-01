@@ -7,6 +7,7 @@ describe ('F', () => {
     expect (F['='] ([]) ([])).toBeTruthy ()
     expect (F['='] ({a: {b: [[{c: 3}], 2]}}) ({a: {b: [[{c: 3}], 2]}})).toBeTruthy ()
     expect (F['='] ({a: {b: [[{c: 3}], 2]}}) ({a: {b: [[{c: 2}], 2]}})).toBeFalsy ()
+    expect (F['='] (null) (undefined)).toBeFalsy ()
   })
 
   it ('.try', () => {
@@ -78,5 +79,23 @@ describe ('F', () => {
     f ()
     f ()
     expect (cnt).toEqual (3)
+  })
+
+  it ('.match', () => {
+    expect (
+      F.match (1)
+      .case (F['='] (0)) (x => '0')
+      .case (F['='] (1)) (x => '1')
+      .case (F['='] (2)) (x => '2')
+      .end ()
+    )
+    .toEqual ('1')
+    expect (
+      F.match (1)
+      .case (F['='] (0)) (x => '0')
+      .case (F['='] (2)) (x => '2')
+      .default (x => '1')
+    )
+    .toEqual ('1')
   })
 })

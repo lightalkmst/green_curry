@@ -1,11 +1,10 @@
 {
   "name": "green_curry",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Curried functional programming library",
   "main": "green_curry.js",
   "scripts": {
-    "test": "jasmine JASMINE_CONFIG_PATH=jasmine.json",
-    "start": "node green_curry.js"
+    "test": "jasmine JASMINE_CONFIG_PATH=jasmine.json"
   },
   "contributors": [
     "Omar Khan <rook_master2000@yahoo.com>"
