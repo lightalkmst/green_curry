@@ -7,7 +7,7 @@ describe ('initializer', () => {
     expect (S).not.toBe (undefined)
   })
 
-  it ('short_composition', () => {
+  xit ('short_composition', () => {
     var green_curry = require ('../green_curry') (['short F.c'])
     expect (green_curry.F.c () (1)).toEqual (1)
     expect (green_curry.F.c (x => x + 3) (1)).toEqual (4)
