@@ -50,7 +50,7 @@ The above code, functionally:
 const green_curry = require ('green_curry') (['globalize', 'short F.c']})
 
 // summing up a array
-const sum_array = A.fold (F['+']) (0)
+const sum_array = A.fold (F ['+']) (0)
 
 // summing up a array of arrays
 const sum_arrays = F.c (A.map (sum_array) >> sum_array)
