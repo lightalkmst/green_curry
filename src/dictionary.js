@@ -39,7 +39,7 @@ const D = module.exports = {
   },
 
   // ('a, 'b) dictionary -> ('a, 'b) dictionary
-  freeze: d => (Object.freeze (D.clone (d)), d),
+  freeze: d => Object.freeze ({...d}),
 
   // ('a, 'b) dictionary -> ('a, 'b) dictionary
   freeze_bind: d => D.freeze (D.bind (d)),
@@ -49,6 +49,9 @@ const D = module.exports = {
 
   // ('a -> unit) -> 'b, 'a dictionary -> unit
   iter: f => D.iterk (F.const (f)),
+
+  // (string -> 'a -> 'b -> 'a) -> 'a -> ('c, 'b) array -> 'a
+  foldk: f => a => d => (A.iter (h => a = f (a) (h [0]) (h [1])) (D.pairs (d)), a),
 
   // ('a -> 'b -> 'a) -> 'a -> ('c, 'b) array -> 'a
   fold: f => a => d => (A.iter (h => a = f (a) (h)) (D.vals (d)), a),
@@ -63,21 +66,40 @@ const D = module.exports = {
   // ('a -> 'b) -> 'c, 'a dictionary -> 'c, 'b dictionary
   map: f => D.mapk (F.const (f)),
 
-  // ('a -> bool) -> 'b, 'a dictionary -> 'a
-  find: f => d => F.ex_if (! A.contains (f) (D.vals (d))) || A.find (f) (D.vals (d)),
+  // (string -> 'a -> bool) -> 'b, 'a dictionary -> 'a
+  findk: f => d => {
+    const keys = Object.keys (d)
+    for (var i = 0, len = keys.length; i < len; i++) {
+      if (f (keys [i]) (d [keys [i]])) {
+        return d [keys [i]]
+      }
+    }
+    throw new Error ('D.findk: element not found')
+  },
 
-  // ('a -> 'b -> bool) -> 'a array -> 'a array
+  // ('a -> bool) -> 'b, 'a dictionary -> 'a
+  find: f => d => {
+    const keys = Object.keys (d)
+    for (var i = 0, len = keys.length; i < len; i++) {
+      if (f (d [keys [i]])) {
+        return d [keys [i]]
+      }
+    }
+    throw new Error ('D.findk: element not found')
+  },
+
+  // ('a -> 'b -> bool) -> 'a, 'b dictionary -> 'a, 'b dictionary
   filterk: f => d => {
     var ans = {}
-    D.iterk (k => v => f (k) (v) && (ans[k] = d[v])) (d)
+    D.iterk (k => v => f (k) (v) && (ans [k] = v)) (d)
     return ans
   },
 
-  // ('a -> bool) -> 'a array -> 'a array
+  // ('a -> bool) -> 'b, 'a dictionary -> 'b, 'a dictionary
   filter: f => D.filterk (F.const (f)),
 
   // ('a -> bool) -> 'b, 'a dictionary -> bool
-  for_all: f => d => A.forall (f) (D.vals (d)),
+  for_all: f => d => A.for_all (f) (D.vals (d)),
 
   // ('a -> bool) -> 'b, 'a dictionary -> bool
   exists: f => d => A.exists (f) (D.vals (d)),
@@ -94,7 +116,7 @@ const D = module.exports = {
   // ('a -> bool) -> 'b, 'a dictionary -> (('b, 'a) dictionary * ('b, 'a) dictionary)
   partition: f => d => {
     var ans = [{}, {}]
-    D.iterk (k => v => f (v) ? ans[0][k] = v : ans[1][k] = v)
+    D.iterk (k => v => f (v) ? ans [0] [k] = v : ans [1] [k] = v) (d)
     return ans
   },
 
@@ -109,21 +131,21 @@ const D = module.exports = {
     return ans
   },
 
-  // ('a, 'b) dictionary -> 'a array -> ('a, 'b) dictionary
-  copy: l => d => {
+  // 'a array -> ('a, 'b) dictionary -> ('a, 'b) dictionary
+  copy: xs => d => {
     var ans = {}
     for (k in d)
-      if (A.contains (k))
-        ans[k] = d[k]
+      if (A.contains (k) (xs))
+        ans [k] = d [k]
     return ans
   },
 
-  // ('a, 'b) dictionary -> 'a array -> ('a, 'b) dictionary
-  delete: l => d => {
+  // 'a array -> ('a, 'b) dictionary -> ('a, 'b) dictionary
+  delete: xs => d => {
     var ans = {}
     for (k in d)
-      if (! A.contains (k))
-        ans[k] = d[k]
+      if (! A.contains (k) (xs))
+        ans [k] = d [k]
     return ans
   },
 

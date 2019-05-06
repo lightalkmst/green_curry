@@ -10,7 +10,7 @@ The contents of this package are organized into submodules:
 
 [A: arrays](https://github.com/lightalkmst/green_curry#l-1-array-and-2-arrays-functions)
 
-[D: dictionaries (objects)](https://github.com/lightalkmst/green_curry#d-dictionary-functions)
+[D: dictionaries](https://github.com/lightalkmst/green_curry#d-dictionary-functions)
 
 [S: strings](https://github.com/lightalkmst/green_curry#s-string-functions)
 
@@ -105,22 +105,6 @@ An alias for console.log.bind (console)
 
 Aliasing and calling console.log by itself without binding will throw an exception
 
-#### F.eval : (s: string) -> 'a
-A wrapper for eval that will always operate within calling scope
-
-An unaliased call to eval will operate within the calling scope
-
-An aliased call to eval will operate at the global scope
-
-Operates in lazy mode
-```javascript
-var a = 'Hint: 3?'
-eval ('a') // 'Hint: 3?'
-var f = eval
-f ('a') // undefined
-var f = F.eval
-f ('a') // 'Hint: 3?'
-```
 #### F.= : (x: 'a) -> (y: 'a) -> bool
 Deep comparison of x and y
 
@@ -230,10 +214,22 @@ Returns a predicate that is a union of f and g
 #### F.inter : (f: 'a -> bool) -> (g: 'a -> bool) -> ('a -> bool)
 Returns a predicate that is an intersection of f and g
 
-#### F.try : (b: bool) -> (fs: (unit -> 'a) array) -> 'a
-Iteratively calls each function in fs until one returns without an exception and returns the result
+#### F.try
+Calls the first function and returns the result
 
-If b, then prints each exception to console
+If an exception is thrown, passes it to the second function and returns the result
+
+Essentially try/catch as an expression
+
+```javascript
+F.try (() => {
+  F.log ('Hint: 3?')
+  throw new Error ()
+})
+.catch (err => {
+  F.log (true)
+}) // prints 'Hint: 3?' then true
+```
 
 #### F.swap : (f: 'a -> 'b -> 'c) -> ('b -> 'a -> 'c)
 Swaps the order of the next two arguments of f
@@ -536,11 +532,14 @@ Same as D.bind then D.freeze
 #### D.iter : (f: 'a -> unit) -> (d: 'b, 'a dictionary) -> unit
 Same as A.iter on the values of d, except with keys instead of indices
 
-#### D.iterk : (f: 'a -> 'b -> unit) -> (d: 'a, 'b dictionary) -> unit
+#### D.iterk : (f: 'a -> 'b -> 'c -> unit) -> (d: 'a, 'b dictionary) -> unit
 Same as D.iter, except additionally passing the key
 
 #### D.fold : (f: 'a -> 'b -> 'a) -> (a: 'a) -> (d: 'c, 'b dictionary) -> 'a
 Same as A.fold on the values of d
+
+#### D.foldk : (f: 'a -> 'b -> 'c -> 'a) -> (a: 'a) -> (d: 'b, 'c dictionary) -> 'a
+Same as D.fold, except additionally passing the key
 
 #### D.map : (f: 'a -> 'b) -> (d: 'c, 'a dictionary) -> 'c, 'b dictionary
 Same as A.map on the values of d
@@ -551,10 +550,13 @@ Same as D.map, except additionally passing the key
 #### D.find : (f: 'a -> bool) -> (d: 'b, 'a dictionary) -> 'a
 Same as A.find on the values of d
 
-#### D.filter : (f: 'a -> bool) -> (d: 'a array) -> 'a array
+#### D.findk : (f: 'a -> 'b -> bool) -> (d: 'a, 'b dictionary) -> 'b
+Same as D.find, except additionally passing the key
+
+#### D.filter : (f: 'a -> bool) -> (d: 'b, 'a dictionary) -> 'a array
 Same as A.filter on the values of d
 
-#### D.filterk : (f: 'a -> 'b -> bool) -> (d: 'a array) -> 'a array
+#### D.filterk : (f: 'a -> 'b -> bool) -> (d: 'a, 'b dictionary) -> 'a array
 Same as D.filter, except additionally passed the key
 
 #### D.for_all : (f: 'a -> bool) -> (d: 'b, 'a dictionary) -> bool
@@ -578,11 +580,11 @@ Same as A.partition on the values of d
 #### D.extend : (d1: 'a, 'b dictionary) -> (d2: 'a, 'b dictionary) -> 'a, 'b dictionary
 Returns d1 overlaid by d2
 
-#### D.copy : (d: 'a, 'b dictionary) -> (xs: 'a array) -> 'a, 'b dictionary
-Returns d with only the pairs with keys in l
+#### D.copy : (xs: 'a array) -> (d: 'a, 'b dictionary) -> 'a, 'b dictionary
+Returns d with only the pairs with keys in xs
 
-#### D.delete : (d: 'a, 'b dictionary) -> (xs: 'a array) -> 'a, 'b dictionary
-Returns d without the pairs with keys in l
+#### D.delete : (xs: 'a array) -> (d: 'a, 'b dictionary) -> 'a, 'b dictionary
+Returns d without the pairs with keys in xs
 
 #### D.equals : (d1: ('a, 'b) dictionary) -> (d2: ('a, 'b) dictionary) -> bool
 Deep comparison of d1 and d2

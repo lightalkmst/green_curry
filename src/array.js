@@ -46,7 +46,13 @@ const A = module.exports = {
   init: n => f => A.map (f) (A.range (0) (n - 1)),
 
   // 'a array -> 'a array
-  rev: xs => xs.map ((x, i) => xs [len - i - 1]),
+  rev: xs => {
+    const ans = []
+    for (var i = 0, len = ans.length = xs.length; i < len; i++) {
+      ans [i] = xs [len - i - 1]
+    }
+    return ans
+  },
 
   // int -> int -> 'a array -> 'a array
   slice: x => y => xs => xs.slice (x, y),
@@ -64,7 +70,11 @@ const A = module.exports = {
   reduce: f => xs => xs.reduce ((a, h) => f (a) (h)),
 
   // ('a -> 'b -> 'a) -> 'a -> 'b array -> 'a array
-  scan: f => a => xs => xs.reduce ((a, h) => [...a, f (a) (h)], [a]),
+  scan: f => a => xs =>
+    xs.reduce ((a, h) => {
+      const a2 = f (a [1]) (h)
+      return [[...a [0], a2], a2]
+    }, [[a], a]) [0],
 
   // (int -> 'a -> 'b) -> 'a array -> 'b array
   mapi: f => xs => xs.map ((x, i) => f (i) (x)),
@@ -138,7 +148,12 @@ const A = module.exports = {
   // ('a -> string) -> 'a array -> 'a array
   hash_uniq: f => xs => {
     const memo = {}
-    xs.forEach(x => memo [f (x)] = true)
+    xs.forEach (x => {
+      const k = f (x)
+      if (memo [k] === undefined)
+        memo [k] = x
+    })
+    return Object.values (memo)
   },
 
   // ('a * 'b) array -> 'a array * 'b array
@@ -167,29 +182,81 @@ const A = module.exports = {
   uneq_length: xs1 => xs2 => xs1.length !== xs2.length,
 
   // (int -> 'a -> 'b -> unit) -> 'a array -> 'b array -> unit
-  iteri2: f => xs1 => xs2 => A.zip (xs1) (xs2).forEach ((x, i) => f (i) (x[0]) (x[1])),
+  iteri2: f => xs1 => xs2 => {
+    if (xs1.length !== xs2.length)
+      throw new Error ('A.iteri2: arrays do not have equal length')
+    for (var i = 0, len = xs1.length; i < len; i++) {
+      f (i) (xs1 [i]) (xs2 [i])
+    }
+  },
 
   // ('a -> 'b -> unit) -> 'a array -> 'b array -> unit
-  iter2: f => A.iteri2 (F.const (f)),
+  iter2: f => xs1 => xs2 => {
+    if (xs1.length !== xs2.length)
+      throw new Error ('A.iter2: arrays do not have equal length')
+    for (var i = 0, len = xs1.length; i < len; i++) {
+      f (xs1 [i]) (xs2 [i])
+    }
+  },
 
   // ('a -> 'b -> 'c -> 'a) -> 'a -> 'b array -> 'c array -> 'a
-  fold2: f => a => xs1 => xs2 => A.fold (a => ([h1, h2]) => f (a) (h1) (h2)) (a) (A.zip (xs1) (xs2)),
+  fold2: f => a => xs1 => xs2 => {
+    if (xs1.length !== xs2.length)
+      throw new Error ('A.fold2: arrays do not have equal length')
+    for (var i = 0, len = xs1.length; i < len; i++) {
+      a = f (a) (xs1 [i]) (xs2 [i])
+    }
+    return a
+  },
 
   // (int -> 'a -> 'b -> 'c) -> 'a array -> 'b array -> 'c array
-  mapi2: f => xs1 => xs2 => A.mapi (i => ([h1, h2]) => f (i) (h1) (h2)) (A.zip (xs1) (xs2)),
+  mapi2: f => xs1 => xs2 => {
+    if (xs1.length !== xs2.length)
+      throw new Error ('A.mapi2: arrays do not have equal length')
+    const ans = []
+    for (var i = 0, len = xs1.length; i < len; i++) {
+      ans.push (f (i) (xs1 [i]) (xs2 [i]))
+    }
+    return ans
+  },
 
   // ('a -> 'b -> 'c) -> 'a array -> 'b array -> 'c array
-  map2: f => A.mapi2 (F.const (f)),
+  map2: f => xs1 => xs2 => {
+    if (xs1.length !== xs2.length)
+      throw new Error ('A.map2: arrays do not have equal length')
+    const ans = []
+    for (var i = 0, len = xs1.length; i < len; i++) {
+      ans.push (f (xs1 [i]) (xs2 [i]))
+    }
+    return ans
+  },
 
   // ('a -> 'b -> bool) -> 'a array -> 'b array -> bool
-  for_alxs2: f => xs1 => xs2 => A.for_all (([h1, h2]) => f (h1) (h2)) (A.zip (xs1) (xs2)),
+  for_all2: f => xs1 => xs2 => {
+    if (xs1.length !== xs2.length)
+      throw new Error ('A.for_all2: arrays do not have equal length')
+    for (var i = 0, len = xs1.length; i < len; i++) {
+      if (! f (xs1 [i]) (xs2 [i]))
+        return false
+    }
+    return true
+  },
 
   // ('a -> 'b -> bool) -> 'a array -> 'b array -> bool
-  exists2: f => xs1 => xs2 => A.exists (([h1, h2]) => f (h1) (h2)) (A.zip (xs1) (xs2)),
+  exists2: f => xs1 => xs2 => {
+    if (xs1.length !== xs2.length)
+      throw new Error ('A.exists2: arrays do not have equal length')
+    for (var i = 0, len = xs1.length; i < len; i++) {
+      if (f (xs1 [i]) (xs2 [i]))
+        return true
+    }
+    return false
+  },
 
   // 'a array -> 'b array -> ('a * 'b) array
   zip: xs1 => xs2 => {
-    F.ex_if (A.uneq_length (xs1) (xs2))
+    if (xs1.length !== xs2.length)
+      throw new Error ('A.zip: arrays do not have equal length')
     var ans = []
     for (var i = 0; i < xs1.length; i++)
       ans.push ([xs1[i], xs2[i]])
@@ -197,7 +264,7 @@ const A = module.exports = {
   },
 
   // 'a array -> 'a array -> bool
-  equals: xs1 => xs2 => ! A.uneq_length (xs1) (xs2) && A.for_alxs2 (F['=']) (xs1) (xs2),
+  equals: xs1 => xs2 => ! A.uneq_length (xs1) (xs2) && A.for_all2 (F['=']) (xs1) (xs2),
 
   ////////////////
   //            //
@@ -470,7 +537,7 @@ const A = module.exports = {
 
       // ('a -> bool promise) -> 'a array -> 'a array promise
       filter: f => async xs =>
-        (await Promise.all (xs.map (x => [f (x), x])))
+        (await Promise.all (xs.map (async x => [await f (x), x])))
         .filter (x => x [0])
         .map (x => x [1]),
 

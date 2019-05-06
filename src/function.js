@@ -115,7 +115,7 @@ const F = module.exports = {
 
   '<<<': x => y => x << y,
 
-  '??': x => y => x !== undefined ? x : y,
+  '??': x => y => ! [undefined, null].includes (x) ? x : y,
 
   '?:': x => y => z => x ? y : z,
 
@@ -143,15 +143,16 @@ const F = module.exports = {
   // ('a -> bool) -> ('a -> bool) -> ('a -> bool)
   inter: f => g => x => f (x) && g (x),
 
-  // (unit -> 'a) -> 'a
-  try: p => fs => {
-    var f = fs.shift ()
-    try {
-      return f && f ()
-    }
-    catch (e) {
-      p && F.log (e)
-      return fs[0] ? F.try (p) (fs) : undefined
+  try: f => {
+    return {
+      catch: g => {
+        try {
+          return f ()
+        }
+        catch (err) {
+          return g (err)
+        }
+      }
     }
   },
 
@@ -220,28 +221,24 @@ const F = module.exports = {
 
   match: x => {
     const cases = []
-    const exec = f => ((cases.find (y => y [0] === x) || []) [1] || f) (x)
     const o = {
       case: p => f => {
         cases.push ([p, f])
         return o
       },
-      default: exec,
-      end: () => exec (() => F.throw (new Error (`F.match: no matching case found - ${JSON.stringify (x)}`))),
+      default: f => ((cases.find (y => y [0] === x) || []) [1] || f) (x),
     }
     return o
   },
 
   match_f: x => {
     const cases = []
-    const exec = f => ((cases.find (y => y [0] (x)) || []) [1] || f) (x)
     const o = {
       case: p => f => {
         cases.push ([p, f])
         return o
       },
-      default: exec,
-      end: () => exec (() => F.throw (new Error (`F.match: no matching case found - ${JSON.stringify (x)}`))),
+      default: f => ((cases.find (y => y [0] (x)) || []) [1] || f) (x),
     }
     return o
   },
