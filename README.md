@@ -76,6 +76,8 @@ F.log ('Hint: 3?') // prints 'Hint: 3?'
 
 ### short F.c
 Removes the need for the first call to F.c
+
+(note: this will break compatibility of nested F.c and F.p, and as such it is recommended to avoid this for any non-trivial project)
 ```javascript
 var green_curry = require ('green_curry') (['short F.c'])
 var f = green_curry.F.c ((x => `Hint: ${x}?`) >> green_curry.F.log)
@@ -104,6 +106,9 @@ Throw x
 An alias for console.log.bind (console)
 
 Aliasing and calling console.log by itself without binding will throw an exception
+
+#### F.log_json : (x: 'a) -> (r: string array) -> (s: int) -> unit
+Same as curried JSON.stringify and then console.log
 
 #### F.= : (x: 'a) -> (y: 'a) -> bool
 Deep comparison of x and y
@@ -304,6 +309,24 @@ F.match (3)
 #### F.match_f
 Same as F.match, but takes predicate functions as cases
 
+### F.P (promise-based utility functions)
+Promise-based utility functions are contained in the F.P submodule
+
+#### F.P.try
+Same as F.try, but supports promised functions
+
+Only the expression as a whole returns a promise
+
+```javascript
+await F.P.try (async () => {
+  F.log ('Hint: 3?')
+  throw new Error ()
+})
+.catch (async err => {
+  F.log (true)
+}) // prints 'Hint: 3?' then true
+```
+
 ## A (1 array and 2 arrays functions)
 (note: arrays are assumed to be dense, meaning all data is contiguous)
 
@@ -371,6 +394,12 @@ Returns the first element in xs for which f returns true and throws an error if 
 #### A.try_find : (f: 'a -> bool) -> (xs: 'a array) -> 'a
 Returns the first element in xs for which f returns true and returns undefined if one does not exist
 
+#### A.find_index : (f: 'a -> bool) -> (xs: 'a array) -> 'a
+Returns the index of the first element in xs for which f returns true and throws an error if one does not exist
+
+#### A.try_find_index : (f: 'a -> bool) -> (xs: 'a array) -> 'a
+Returns the index of the first element in xs for which f returns true and returns undefined if one does not exist
+
 #### A.pick : (f: 'a -> unit/'b) -> (xs: 'a array) -> unit/'b
 Returns the result of f for the first element in xs for which f does not return undefined and throws an error if one does not exist
 
@@ -407,6 +436,9 @@ Returns xs with duplicates removed according to the mapping through f
 Returns the arrays of the first element of each element of xs and the second element of each element of l
 
 (note: this function does not enforce density)
+
+#### A.flatten: (xss: 'a array array) -> 'a array
+Returns an array of xss flattened by one level
 
 ### 2 array functions
 #### A.append : (l1: 'a array) -> (l2: 'a array) -> 'a array
@@ -446,11 +478,11 @@ Throws exception F.e if l1 and l2 have unequal lengths and returns the correspon
 Deep comparison of x and y
 
 ### A.P (promise-based array functions)
-Promise-based array functions are contained in the P.A submodule, with P.A.s serial and P.A.p parallel submodules
+Promise-based array functions are contained in the A.P submodule, with A.P.s serial and A.P.p parallel submodules
 
 Serial functions will operate in order and will reject on the first error or resolve on success
 
-Parallel functions will initiate all operations at the same time and will resolve as soon as possible or reject on the first error before that
+Parallel functions will initiate all operations at the same time and will resolve when all operations complete or reject on the first error before that
 
 Not all functions are available in both modes
 
@@ -505,6 +537,9 @@ Returns if d is empty
 
 #### D.get : (k: 'a) -> (d: 'a, 'b dictionary) -> 'b
 Returns the element in d with key k
+
+#### D.set : (k: 'a) -> (v: 'b) -> (d: 'a, 'b dictionary) -> 'a, 'b dictionary
+Returns d with key k set to value v
 
 #### D.create : (xs: ('a * 'b) array) -> 'a, 'b dictionary
 Returns the dictionary with pairs of each element with the first element as the key and the second element as the value
@@ -634,3 +669,6 @@ Returns x without surrounding whitespace
 
 #### S.equals : (x: string) -> (y: string) -> bool
 Returns if x and y are equal
+
+#### S.join : (x: string) -> (xs: string array) -> string
+Returns the string of all strings in xs with x in between each element

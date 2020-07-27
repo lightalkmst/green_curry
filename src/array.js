@@ -96,6 +96,20 @@ const A = module.exports = {
   // ('a -> bool) -> 'a array -> int
   find_index: f => xs => {
     const ans = xs.findIndex (x => f (x))
+    if (ans === -1)
+      throw new Error ('A.find: element not found')
+    return ans
+  },
+
+  // ('a -> bool) -> 'a array -> int
+  try_find_index: f => xs => {
+    const ans = xs.findIndex (x => f (x))
+    return ans !== -1 ? ans : undefined
+  },
+
+  // ('a -> bool) -> 'a array -> int
+  find_index: f => xs => {
+    const ans = xs.findIndex (x => f (x))
     if (ans === undefined)
       throw new Error ('A.find: element not found')
     return ans
@@ -165,6 +179,9 @@ const A = module.exports = {
     })
     return ans
   },
+
+  // 'a array array -> 'a array
+  flatten: xs => xs.flat (),
 
   ////////////////
   //            //

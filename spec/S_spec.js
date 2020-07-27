@@ -46,7 +46,11 @@ describe ('S', () => {
 
   describe ('match', () => {
     it ('works', () => {
-      assert.deepEqual (S.match (/(a)/) ('a'), {...['a', 'a'], index: 0, input: 'a'})
+      const ans = ['a', 'a']
+      ans.groups = undefined
+      ans.index = 0
+      ans.input = 'a'
+      assert.deepEqual (S.match (/(a)/) ('a'), ans)
     })
   })
 
@@ -96,6 +100,12 @@ describe ('S', () => {
     it ('works', () => {
       assert.deepEqual (S.equals ('a') ('aa'), false)
       assert.deepEqual (S.equals ('a') ('a'), true)
+    })
+  })
+
+  describe ('join', () => {
+    it ('works', () => {
+      assert.deepEqual (S.join (', ') (['a', 'b', 'c']), 'a, b, c')
     })
   })
 })

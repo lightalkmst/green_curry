@@ -15,6 +15,12 @@ describe ('D', () => {
     })
   })
 
+  describe ('set', () => {
+    it ('works', () => {
+      assert.deepEqual (D.set ('a') (3) ({a: 1, b: 2}), {a: 3, b: 2})
+    })
+  })
+
   describe ('create', () => {
     it ('works', () => {
       assert.deepEqual (D.create ([['a', 1], ['b', 2]]), {a: 1, b: 2})

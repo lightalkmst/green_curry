@@ -381,6 +381,14 @@ describe ('F', () => {
         .default (x => 1)
       )
       .toEqual (1)
+      try {
+        F.match (1)
+        .case (0) (x => 0)
+        .case (2) (x => 2)
+        .end ()
+        assert.fail ()
+      }
+      catch (err) {}
     })
   })
 
@@ -393,6 +401,27 @@ describe ('F', () => {
         .default (x => 1)
       )
       .toEqual (1)
+    })
+  })
+
+  describe ('P', () => {
+    describe ('try', () => {
+      it ('works', async () => {
+        assert.deepEqual (
+          await F.P.try (() => 1)
+          .catch (err => {}),
+          1
+        )
+        assert.deepEqual (
+          await F.P.try (() => {
+            throw 1
+          })
+          .catch (err => {
+            return err
+          }),
+          1
+        )
+      })
     })
   })
 })

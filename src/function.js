@@ -28,6 +28,9 @@ const F = module.exports = {
   // 'a -> unit
   log: console.log.bind (console),
 
+  // 'a -> string array -> int -> unit
+  log_json: x => r => i => console.log (JSON.stringify (x, r, i)),
+
   // string -> 'a
   // wrapper for eval required
   // operates at global scope (ie: ignores variables) if pointless form
@@ -227,6 +230,7 @@ const F = module.exports = {
         return o
       },
       default: f => ((cases.find (y => y [0] === x) || []) [1] || f) (x),
+      end: f => ((A.find (y => y [0] === x) (cases) || []) [1] || f) (x),
     }
     return o
   },
@@ -241,5 +245,18 @@ const F = module.exports = {
       default: f => ((cases.find (y => y [0] (x)) || []) [1] || f) (x),
     }
     return o
+  },
+
+  P: {
+    try: f => ({
+      catch: async g => {
+        try {
+          return await f ()
+        }
+        catch (err) {
+          return await g (err)
+        }
+      }
+    }),
   },
 }

@@ -22,6 +22,7 @@ var globalize = () => {
     else if (typeof global != 'undefined')
       global[k] = v
   }) (library)
+  globalize = F.ignore
 }
 
 var short_composition = () => {
@@ -34,6 +35,7 @@ var short_composition = () => {
     fs.length = 0
     return F.rcomp (fs2.length ? fs2 : [f || F.id])
   }
+  short_composition = F.ignore
 }
 
 module.exports = options => {

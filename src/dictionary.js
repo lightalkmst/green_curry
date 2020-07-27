@@ -14,6 +14,9 @@ const D = module.exports = {
   // 'a -> ('a, 'b) dictionary -> 'b
   get: x => d => d[x],
 
+  // 'a -> 'b -> ('a, 'b) dictionary -> ('a, 'b) dictionary
+  set: k => v => d => ({... d, [k]: v}),
+
   // ('a * 'b) array -> ('a, 'b) dictionary
   create: l => {
     var ans = {}
