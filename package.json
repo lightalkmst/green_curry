@@ -1,6 +1,6 @@
 {
   "name": "green_curry",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Curried functional programming library",
   "main": "green_curry.js",
   "scripts": {
