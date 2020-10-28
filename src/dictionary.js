@@ -146,7 +146,7 @@ const D = module.exports = {
   // 'a array -> ('a, 'b) dictionary -> ('a, 'b) dictionary
   delete: xs => d => {
     var ans = {}
-    for (k in d)
+    for (var k in d)
       if (! A.contains (k) (xs))
         ans [k] = d [k]
     return ans

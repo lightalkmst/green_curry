@@ -18,7 +18,7 @@ This library is to provide support for pure functional programming by providing 
 
 Here is an example:
 ```javascript
-// summing up a array
+// summing up an array
 function sum_array(array) {
   var ans = 0;
   for (var i = 0; i < array.length; i++) {
