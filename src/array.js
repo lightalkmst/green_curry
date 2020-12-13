@@ -107,17 +107,6 @@ const A = module.exports = {
     return ans !== -1 ? ans : undefined
   },
 
-  // ('a -> bool) -> 'a array -> int
-  find_index: f => xs => {
-    const ans = xs.findIndex (x => f (x))
-    if (ans === undefined)
-      throw new Error ('A.find: element not found')
-    return ans
-  },
-
-  // ('a -> bool) -> 'a array -> int
-  try_find_index: f => xs => xs.findIndex (x => f (x)),
-
   // ('a -> unit/'b) -> 'a array -> unit/'b
   pick: f => xs => {
     let ans = undefined
